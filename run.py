@@ -5,7 +5,7 @@ import logging
 app = create_app(debug=True)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     socketio.run(app)
     
 

@@ -11,12 +11,17 @@ import logging
 
 @main.route('/c/<cam_num>')
 def activateCam(cam_num):
+    
     global camIndex
     camIndex = int(cam_num)
-    return "Camera %d activated"% (camIndex)
+    return Response(gen(VideoCamera(camIndex)),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    #return "Camera %d activated"% (camIndex)
 
 @main.route('/get_cameras')
 def get_cameras():
+    logging.basicConfig(level=logging.DEBUG)
     #index = 2
     arr = []
     for index in range(5):
