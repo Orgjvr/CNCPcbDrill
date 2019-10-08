@@ -1,11 +1,11 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
+from flask import Flask #, render_template
+from flask_socketio import SocketIO #, emit
 
-
+socketio = SocketIO()
 
 #app = Flask(__name__, instance_relative_config=True)
 #app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+#socketio = SocketIO(app)
 
 def create_app(debug=False):
     """Create an application."""

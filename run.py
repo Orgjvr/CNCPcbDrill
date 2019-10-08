@@ -1,35 +1,35 @@
 #!/bin/env python
-from pcbdrill import create_app, socketio
+from app import create_app, socketio
 
-app = create_app(debug=True)
+app = create_app(debug=False)
 
 if __name__ == '__main__':
     socketio.run(app)
 
 
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
+#from flask import Flask, render_template
+#from flask_socketio import SocketIO, emit
 
 
-app = Flask(__name__, instance_relative_config=True)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+#app = Flask(__name__, instance_relative_config=True)
+#app.config['SECRET_KEY'] = 'secret!'
+#socketio = SocketIO(app)
 
 # Load the default configuration
-app.config.from_object('config.default')
+#app.config.from_object('config.default')
 
 # Load the configuration from the instance folder
-app.config.from_pyfile('config.py')
+#app.config.from_pyfile('config.py')
 
 # Load the file specified by the APP_CONFIG_FILE environment variable
 # Variables defined here will override those in the default configuration
-app.config.from_envvar('APP_CONFIG_FILE')
+#app.config.from_envvar('APP_CONFIG_FILE')
 
 
-if __name__ == '__main__':
-    socketio.run(app)
+#if __name__ == '__main__':
+#    socketio.run(app)
 
-from yourapplication import app
+#from yourapplication import app
 
 #from setuptools import setup
 
