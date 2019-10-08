@@ -2,11 +2,11 @@
 import cv2
 
 class VideoCamera(object):
-    def __init__(self):
+    def __init__(self, index):
         # Using OpenCV to capture from device 0. If you have trouble capturing
         # from a webcam, comment the line below out and use a video file
         # instead.
-        self.video = cv2.VideoCapture(0)
+        self.video = cv2.VideoCapture(index)
         self.video.set(3,320)
         self.video.set(4,240)
         # If you decide to use video.mp4, you must have this file in the folder
