@@ -15,9 +15,30 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@main.route('/uploads/<filename>')
+def uploaded_file(filename):
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug("Building endpoint uploaded_file")
+    toolCollection = dict()
+    for t in g_tools:
+        tool = dict()
+        tool["toolNum"] = int(t.toolNum)
+        tool["size"] = float(t.size)
+        tool["holeCount"] = t.holeCount
+        tool["color"] = "black" #colordict[int(t)]
+        toolCollection[int(t.toolNum)] = tool
+    #print("urlmap")
+    #print(app.url_map)
+    #for t in toolCollection:
+    #    td = toolCollection[t]
+    #    #print(td)
+    #return render_template('index.html', toolCollection=toolCollection, sPorts=sPorts, checkit=checkit, serialPort=serialPort)
+    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
+    #return "uploaded_file rendered"
+
 @main.route('/open_file', methods=['GET', 'POST'])
 def upload_file():
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     if request.method == 'POST':
         print("POSTING")
         # check if the post request has the file part
@@ -51,14 +72,14 @@ def upload_file():
             intDigits = int(app.config.get('INTEGER_DIGITS_IN_DRILLFILE'))
             decDigits = int(app.config.get('DECIMAL_DIGITS_IN_DRILLFILE'))
             #print("About to process file....")
-            global holes
-            holes = []
-            global toolsDict
-            toolsDict = []
-            processFile.ReadFile(filepath, toolsDict, holes, intDigits, decDigits)
+            global g_holes
+            g_holes = []
+            global g_tools
+            g_tools = []
+            processFile.ReadFile(filepath, g_tools, g_holes, intDigits, decDigits)
             #processFile(filepath)
-            return "done"
-            #return redirect(url_for('uploaded_file', filename=filename))
+            return redirect(url_for('main.uploaded_file', filename=filename))
+            #return 'uploads/'+str(filename)
     logging.debug("GETTING")
     return '''
     <!doctype html>
@@ -71,9 +92,11 @@ def upload_file():
     
     '''
 
-@main.route('/uploads/<filename>')
-def uploaded_file(filename):
-    for t in toolCollection:
-        td = toolCollection[t]
-        #print(td)
-    return render_template('index.html', toolCollection=toolCollection, sPorts=sPorts, checkit=checkit, serialPort=serialPort)
+@main.route('/plot_png')
+def plot_png():
+    fig = create_figure()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    print("plotting")
+    return Response(output.getvalue(), mimetype='image/png')
+

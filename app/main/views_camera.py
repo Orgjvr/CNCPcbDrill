@@ -5,6 +5,7 @@ import cv2
 from .camera import VideoCamera
 import json
 import logging
+from flask import current_app as app
 
 #TODO: add send of json camera list from GetCameras
 #TODO: add dynamic route to activate camera /c/2 
@@ -57,6 +58,7 @@ def gen(camera):
 @main.route('/video_feed')
 def video_feed():
     global camIndex
+    camIndex = int(app.config.get('CAMERA_INDEX'))
     #print('getting video feed')
     #if oldIndex != camIndex:
     #    mustCaptureVideo = False

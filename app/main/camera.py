@@ -14,7 +14,10 @@ class VideoCamera(object):
         # self.video = cv2.VideoCapture('video.mp4')
     
     def __del__(self):
-        self.video.release()
+        try:
+            self.video.release()
+        except:
+             a=0
     
     def get_frame(self):
         success, image = self.video.read()
