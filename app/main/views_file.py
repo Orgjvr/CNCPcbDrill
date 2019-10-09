@@ -87,6 +87,7 @@ def uploaded_file(filename):
     return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
     #return "uploaded_file rendered"
 
+@main.route('/', methods=['GET', 'POST'])
 @main.route('/open_file', methods=['GET', 'POST'])
 def upload_file():
     #logging.basicConfig(level=logging.DEBUG)

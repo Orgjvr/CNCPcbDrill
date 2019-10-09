@@ -6,7 +6,7 @@ from . import main
 def hi():
         return "Hello World!"
 
-@main.route('/')
-def index():
+@main.route('/old')
+def old_index():
         return "You have reached a dead end on the internet... :("
 
