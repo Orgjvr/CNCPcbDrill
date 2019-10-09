@@ -2,7 +2,8 @@ from flask import Blueprint
 
 main = Blueprint('main', __name__)
 
-from . import views, views_camera, views_serial, models, forms, events
+from . import views, views_camera, views_serial, views_file
+from . import models, forms, events
 from .camera import VideoCamera
 
 from . import serialFunctions

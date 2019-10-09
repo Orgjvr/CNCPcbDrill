@@ -13,13 +13,12 @@ def create_app(debug=False):
     app.debug = debug
     app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
 
-    # Load the default configuration
+    # Load the default configuration from ./config/default.py
     app.config.from_object('config.default')
 
     # Load the configuration from the instance folder
     app.config.from_pyfile('config.py')
 
-    
     # Load the file specified by the APP_CONFIG_FILE environment variable
     # Variables defined here will override those in the default configuration
     #app.config.from_envvar('APP_CONFIG_FILE')

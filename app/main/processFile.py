@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from main import Hole
+from . import Hole
 
   
     
