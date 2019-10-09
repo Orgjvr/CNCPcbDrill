@@ -1,28 +1,25 @@
 import logging
 from collections import defaultdict
 from . import Hole
+from . import Tool
 
   
-    
-def ReadFile(inputFilename, holes, intDigits, decDigits):
+def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     #params needed: 
     # 1 File name
-    # 2 This is our holes array
-    # 3 Digits in front of Decimal. Normally 3
-    # 4 Digits following Decimal. Normally 3
+    # 2 This is our toolsDict dictionary which will be populated
+    # 3 This is our holes array
+    # 4 Digits in front of Decimal. Normally 3
+    # 5 Digits following Decimal. Normally 3
     
-    #intDigits = 3
-    #decDigits = 3
-    #inputFilename = "pic_programmer2.drl"
-
     inHeader = True
     isMetric = False
     isInch = False
     isLZ = False
-    isTZ = False
-    currentTool = 0
+    isTZ = False    
+    currentTool = -1
     holeNum = 0
-    toolsDict = dict()
+    
 
     f = open(inputFilename,"r")
     fl = f.readlines()
@@ -50,14 +47,18 @@ def ReadFile(inputFilename, holes, intDigits, decDigits):
                 #Found a tool
                 parts = x.split("C")
                 toolNumber = parts[0][1:5].strip()
-                toolSize = parts[1]
+                toolSize = parts[1].strip()
                 logging.debug("Found a Tool - Toolnumber=%s with Size=%s", toolNumber, toolSize)
-                toolsDict[toolNumber] = toolSize.strip()
+                #toolsDict[toolNumber] = toolSize.strip()
+                tools.append(Tool.Tool(toolNumber, toolSize, "0"))
 
         if not inHeader:
             #read Tools
             if x[0] == "T":
                 currentTool = int(x[1:5].strip())
+                toolSize = tools[currentTool-1].size
+                print("ToolSize=<"+str(toolSize)+">")
+
             
             #read holes
             if x.startswith("X") and "Y" in x:
@@ -76,11 +77,12 @@ def ReadFile(inputFilename, holes, intDigits, decDigits):
 
                 holeNum = holeNum + 1
                 logging.debug("Found a Hole - Holenumber=%s with X=%s and Y=%s and line=%s", holeNum, xval, yval, x)
-                holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolsDict[str(currentTool)], isMetric))
+                holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolSize, isMetric))
+                tools[currentTool-1].holeCount += 1
 
             
                 # Warn if Toolnumber=0 
-                if currentTool == 0:
+                if currentTool == -1:
                     logging.warning("Found a hole but no tool... - Toolnumber=%s with Size=%s", toolNumber, toolSize)
 
 
@@ -89,22 +91,25 @@ def ReadFile(inputFilename, holes, intDigits, decDigits):
 
     #Sanities
     if isInch and isMetric:
-        logging.debug("Found both METRIC and INCH. Assume METRIC")
+        logging.warning("Found both METRIC and INCH. Assume METRIC")
         isMetric = True
         isInch = False
 
     if not (isInch or isMetric):
-        logging.debug("Did not find either METRIC or INCH. Assume METRIC")
+        logging.warning("Did not find either METRIC or INCH. Assume METRIC")
         isMetric = True
     
     if isLZ and isTZ:
-        logging.debug("Found both TZ and LZ. Assume TZ")
+        logging.warning("Found both TZ and LZ. Assume TZ")
         isTZ = True
         isLZ = False
 
     if not (isLZ or isTZ):
-        logging.debug("Did not find either TZ and LZ. Assume TZ")
+        logging.warning("Did not find either TZ and LZ. Assume TZ")
         isTZ = True
 
+    #print tools
+    #print("Now print tools:")
+    #Tool.PrintTools(tools)
 
 

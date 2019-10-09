@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 import json
 import logging
 from flask import current_app as app
+from . import processFile
+from collections import defaultdict
 
 ALLOWED_EXTENSIONS = set(['drl', 'txt', 'xln'])
 
@@ -45,9 +47,18 @@ def upload_file():
                 pass
             file.save(filepath)
             # read file 
+            # Get some more config settings
+            intDigits = int(app.config.get('INTEGER_DIGITS_IN_DRILLFILE'))
+            decDigits = int(app.config.get('DECIMAL_DIGITS_IN_DRILLFILE'))
             #print("About to process file....")
-            processFile(filepath)
-            return redirect(url_for('uploaded_file', filename=filename))
+            global holes
+            holes = []
+            global toolsDict
+            toolsDict = []
+            processFile.ReadFile(filepath, toolsDict, holes, intDigits, decDigits)
+            #processFile(filepath)
+            return "done"
+            #return redirect(url_for('uploaded_file', filename=filename))
     logging.debug("GETTING")
     return '''
     <!doctype html>
