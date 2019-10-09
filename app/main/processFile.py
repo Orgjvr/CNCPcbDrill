@@ -112,4 +112,30 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     #print("Now print tools:")
     #Tool.PrintTools(tools)
 
+    #Now we need to traslate and flip the holes
+    # min @ max for X & Y
+    minX = 999
+    maxX = -999
+    minY = 999
+    maxY = -999
+    for h in holes:
+        if(h.filePoint[0] < minX):
+           minX = h.filePoint[0]
+        if(h.filePoint[0] > maxX):
+           maxX = h.filePoint[0]
+        if(h.filePoint[1] < minY):
+           minY = h.filePoint[1]
+        if(h.filePoint[1] > maxY):
+           maxY = h.filePoint[1]
+    #print("Completed getting Min & Max")
+    # flip & zero
+    for h in holes:
+        h.translateAndFlipHole(minY, maxY, minX )
+    #print("Holes translated & flipped")
+    global maxDistance
+    global h0
+    global h1
+    maxDistance = -999.999
+
+
 

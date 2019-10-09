@@ -8,12 +8,63 @@ import logging
 from flask import current_app as app
 from . import processFile
 from collections import defaultdict
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import io
 
 ALLOWED_EXTENSIONS = set(['drl', 'txt', 'xln'])
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def create_figure():
+    print("creating Figure.........")
+    cnt = 0
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    #fig = plt.figure(figsize=(10,8))
+    
+    for h in g_holes:
+        if(cnt < 260):
+            px = h.zeroedAndFlippedPoint[0]
+            py = h.zeroedAndFlippedPoint[1] 
+            #axis.plot(px, py, color=colordict[h.toolNum],markersize=toolDict[h.toolNum]*2 ,marker='o')
+            print("Plotting hole: "+str(h.holeNumber))
+            axis.plot(px, py, color='black',markersize=(h.size)*2 ,marker='o')
+            cnt += 1
+        else:
+            break
+        font = {'family': 'serif',
+            'color':  'darkred',
+            'weight': 'normal',
+            'size': 16,
+            }
+    #axis.set_title("Max Distance : %3.3f "% (maxDistance))
+    # plot max Line
+    #axis.add_line(Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+    
+    
+
+
+
+
+    #axis.plot( h0.zeroedAndFlippedPoint, h1.zeroedAndFlippedPoint, linewidth=2, color='red')
+
+
+
+
+
+
+        #axis.text(x=20,y=20,text='Hello World Time is : ' + str(datetime.datetime.now()),s=1, color='black', font )
+            
+    #fig = Figure()
+    #axis = fig.add_subplot(1, 1, 1)
+    #xs = range(100)
+    #ys = [random.randint(1, 50) for x in xs]
+    #axis.plot(xs, ys)
+    return fig
 
 @main.route('/uploads/<filename>')
 def uploaded_file(filename):
