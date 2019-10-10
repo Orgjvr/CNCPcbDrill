@@ -65,17 +65,30 @@ class Hole:
         self.zeroedAndFlippedPoint[1] = maxTranslatedY - translatedY
 
 
-def CalculateFurthestHoles(holes):
-    for h1 in holes:
-        for h2 in holes:
-            dist = math.sqrt( (h1.filePoint[0]-h2.filePoint[0])**2 + (h1.filePoint[1]-h2.filePoint[1])**2 )
-            if dist > h1.furthestDist:
-                h1.furthestDist = dist
-                h1.furthestHole = h2.holeNumber
-        logging.debug("Val1="+str(h1.holeNumber)+" is furthest to "+str(h1.furthestHole) +" with distance: "+str(h1.furthestDist))    
+def FindMaxDistanceBetweenHoles(holes):
+    #method variables 
+    maxDistance = -999
+    # placeholders for maxDistance holes - not sure how to define this 
+    h0 = None
+    h1 = None
+
+    for loop_h0 in holes[:-1]:  # from zero to 2nd last hole 
+        for loop_h1 in holes[1:]:   # from 2nd hole to end 
+            #dist = math.sqrt( (h1.filePoint[0]-h2.filePoint[0])**2 + (h1.filePoint[1]-h2.filePoint[1])**2 )
+            dist = CalculateDistanceBetweenHoles(loop_h0, loop_h1)
+            if dist > maxDistance:
+                maxDistance = dist
+                h0 = loop_h0
+                h1 = loop_h1
+    logging.debug("Max Distance betwween holes Found : Holes are : %d and %d and the distance is %3.3f "% (h0.holeNumber, h1.holeNumber, maxDistance))
+    return h0, h1, maxDistance
+
+def CalculateDistanceBetweenHoles(h0, h1):
+    return math.sqrt( (h0.filePoint[0]-h1.filePoint[0])**2 + (h0.filePoint[1]-h1.filePoint[1])**2 )
 
 
-
+''' 
+#NOTE: removed these as the hole class has methods for this anyway 
 
 def rotateX(px, py, angle):
     """
@@ -94,3 +107,5 @@ def rotateY(px, py, angle):
     """
     qy = math.sin(angle) * (px) + math.cos(angle) * (py)
     return qy
+
+'''

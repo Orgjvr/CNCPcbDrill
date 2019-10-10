@@ -20,7 +20,12 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     currentTool = -1
     holeNum = 0
     
-
+    #NOTE: added get min & max for holes into read loop 
+    minY = 999.999
+    minX = 999.999
+    maxX = -999.999
+    maxY = -999.999
+    
     f = open(inputFilename,"r")
     fl = f.readlines()
     for x in fl:
@@ -75,6 +80,17 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
                     yval = float(ypart[0:intDigits]+"."+ypart[intDigits:intDigits+decDigits])
                 filePoint = xval, yval
 
+                # igoring vxal == maxX as it will not change anything 
+                if(xval > maxX):
+                    maxX = xval
+                if(xval < minX):
+                    minX = xval
+                
+                if(yval > maxY):
+                    maxY = yval
+                if(yval < minY):
+                    minY = yval
+
                 holeNum = holeNum + 1
                 logging.debug("Found a Hole - Holenumber=%s with X=%s and Y=%s and line=%s", holeNum, xval, yval, x)
                 holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolSize, isMetric))
@@ -112,30 +128,16 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     #print("Now print tools:")
     #Tool.PrintTools(tools)
 
-    #Now we need to traslate and flip the holes
-    # min @ max for X & Y
-    minX = 999
-    maxX = -999
-    minY = 999
-    maxY = -999
-    for h in holes:
-        if(h.filePoint[0] < minX):
-           minX = h.filePoint[0]
-        if(h.filePoint[0] > maxX):
-           maxX = h.filePoint[0]
-        if(h.filePoint[1] < minY):
-           minY = h.filePoint[1]
-        if(h.filePoint[1] > maxY):
-           maxY = h.filePoint[1]
-    #print("Completed getting Min & Max")
     # flip & zero
     for h in holes:
         h.translateAndFlipHole(minY, maxY, minX )
     #print("Holes translated & flipped")
+
+    # get maxDistance
     global maxDistance
     global h0
     global h1
-    maxDistance = -999.999
-
+    h0, h1, maxDistance = Hole.FindMaxDistanceBetweenHoles(holes)
+    print("Max Distance is between hole: %d and %d with a distance of %f"% (h0.holeNumber, h1.holeNumber, maxDistance))
 
 
