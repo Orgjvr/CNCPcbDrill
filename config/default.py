@@ -3,8 +3,8 @@
 SQLALCHEMY_ECHO = False
 SERIALPORTBAUDRATE = 115200
 UPLOAD_FOLDER = "uploads"
-INTEGER_DIGITS_IN_DRILLFILE = 3
-DECIMAL_DIGITS_IN_DRILLFILE = 3
+#INTEGER_DIGITS_IN_DRILLFILE = 3    #NOTE: repladed by reading file 
+#DECIMAL_DIGITS_IN_DRILLFILE = 3    #NOTE: repladed by reading file 
 GCODE_FLAVOUR = "G" # Possible values is (G)RBL, (M)arlin, (S)moothie
 CAMERA_INDEX = 0
 COLOR_DICT = { 1: "black", 2:"red", 3:"saddlebrown",

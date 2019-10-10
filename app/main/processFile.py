@@ -4,7 +4,7 @@ from .classes import Hole
 from .classes import Tool
 
   
-def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
+def ReadFile(inputFilename, tools, holes):
     #params needed: 
     # 1 File name
     # 2 This is our toolsDict dictionary which will be populated
@@ -17,8 +17,11 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     isInch = False
     isLZ = False
     isTZ = False    
+    intDigits = -1
+    decDigits = -1
     currentTool = -1
     holeNum = 0
+    fileType = ""
     
     #NOTE: added get min & max for holes into read loop 
     minY = 999.999
@@ -30,13 +33,59 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     fl = f.readlines()
     for x in fl:
 
+        ''' 
+        KiCad Header
+        M48
+        ; DRILL file {KiCad (5.1.4-0-10_14)} date Monday, 16 September 2019 at 14:14:34
+        ; FORMAT={3:3/ absolute / metric / suppress leading zeros}
+        ; #@! TF.CreationDate,2019-09-16T14:14:34+02:00
+        ; #@! TF.GenerationSoftware,Kicad,Pcbnew,(5.1.4-0-10_14)
+        FMAT,2
+        METRIC, TZ
+        '''
+
+        if "KiCad" in x:
+            fileType = "K"
+            
+        if "EAGLE" in x:
+            fileType = "E"
+
+
+        if "FORMAT=" in x and fileType == "K":
+            pos = x.find("{")
+            endpos = x.find("}")
+            logging.debug(" start " + str(pos))
+            logging.debug(" end " + str(endpos))
+            logging.debug( x[pos+1: endpos])
+            parts = x[pos+1:endpos].split("/")
+            for p in parts:
+                if ":" in p:
+                    decs = p.split(":")
+                    intDigits = int(decs[0])
+                    decDigits = int(decs[1])
+            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (fileType, intDigits, decDigits))
+
         #Determine if we reached the end of the Header section yet
         if x[0] == '%' or "M95" in x:
             inHeader = False
             logging.debug("Found end of Header")
+            if intDigits == -1 or decDigits == -1:
+                #format not found 
+                logging.warn("format not found in file, setting default of 3:3")
+                intDigits = 3
+                decDigits = 3
 
         if inHeader:
             if "METRIC" in x:
+                if(fileType == "E"):
+                    parts = x.split(",")
+                    for p in parts:
+                        if "0.0" in p:
+                            decs = p.split(".")
+                            intDigits = decs[0].__len__()
+                            decDigits = decs[1].__len__()
+                            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (fileType, intDigits, decDigits))
+
                 isMetric = True
                 logging.debug("Found metric")
             if "INCH" in x:
@@ -62,7 +111,7 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
             if x[0] == "T":
                 currentTool = int(x[1:5].strip())
                 toolSize = tools[currentTool-1].size
-                print("ToolSize=<"+str(toolSize)+">")
+                logging.info("ToolSize=<"+str(toolSize)+">")
 
             
             #read holes
@@ -92,7 +141,7 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
                     minY = yval
 
                 holeNum = holeNum + 1
-                logging.debug("Found a Hole - Holenumber=%s with X=%s and Y=%s and line=%s", holeNum, xval, yval, x)
+                logging.info("Found a Hole - Holenumber=%s with X=%s and Y=%s and line=%s", holeNum, xval, yval, x)
                 holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolSize, isMetric))
                 tools[currentTool-1].holeCount += 1
 
@@ -138,6 +187,6 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     global h0
     global h1
     h0, h1, maxDistance = Hole.FindMaxDistanceBetweenHoles(holes)
-    print("Max Distance is between hole: %d and %d with a distance of %f"% (h0.holeNumber, h1.holeNumber, maxDistance))
+    logging.info("Max Distance is between hole: %d and %d with a distance of %f"% (h0.holeNumber, h1.holeNumber, maxDistance))
 
 

@@ -20,7 +20,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def create_figure():
-    print("creating Figure.........")
+    logging.info("creating Figure.........")
     cnt = 0
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
@@ -32,7 +32,7 @@ def create_figure():
             px = h.zeroedAndFlippedPoint[0]
             py = h.zeroedAndFlippedPoint[1] 
             #axis.plot(px, py, color=colordict[h.toolNum],markersize=toolDict[h.toolNum]*2 ,marker='o')
-            print("Plotting hole: "+str(h.holeNumber))
+            logging.info("Plotting hole: "+str(h.holeNumber))
             axis.plot(px, py, color=colordict[h.toolNum],markersize=(h.size)*2 ,marker='o')
         #    cnt += 1
         #else:
@@ -51,7 +51,7 @@ def create_figure():
 
 @main.route('/uploads/<filename>')
 def uploaded_file(filename):
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     logging.debug("Building endpoint uploaded_file")
     colordict = dict(app.config.get('COLOR_DICT'))
     toolCollection = dict()
@@ -105,14 +105,15 @@ def upload_file():
             file.save(filepath)
             # read file 
             # Get some more config settings
-            intDigits = int(app.config.get('INTEGER_DIGITS_IN_DRILLFILE'))
-            decDigits = int(app.config.get('DECIMAL_DIGITS_IN_DRILLFILE'))
+            # replaced with Read from Drill File 
+            #intDigits = int(app.config.get('INTEGER_DIGITS_IN_DRILLFILE'))
+            #decDigits = int(app.config.get('DECIMAL_DIGITS_IN_DRILLFILE'))
             #print("About to process file....")
             global g_holes
             g_holes = []
             global g_tools
             g_tools = []
-            processFile.ReadFile(filepath, g_tools, g_holes, intDigits, decDigits)
+            processFile.ReadFile(filepath, g_tools, g_holes)
             #processFile(filepath)
             return redirect(url_for('main.uploaded_file', filename=filename))
             #return 'uploads/'+str(filename)
