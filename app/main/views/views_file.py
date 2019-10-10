@@ -1,4 +1,4 @@
-from flask import session, redirect, url_for, render_template, request, Response
+from flask import session, redirect, url_for, render_template, request, Response, flash
 from .. import main
 #from flask import send_from_directory
 import os
@@ -21,12 +21,12 @@ def allowed_file(filename):
 
 def create_figure():
     logging.info("creating Figure.........")
-    cnt = 0
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
     #fig = plt.figure(figsize=(10,8))
     
     colordict = dict(app.config.get('COLOR_DICT'))
+    #cnt = 0
     for h in g_holes:
         #if(cnt < 260):
             px = h.zeroedAndFlippedPoint[0]
@@ -37,11 +37,12 @@ def create_figure():
         #    cnt += 1
         #else:
         #    break
-    font = {'family': 'serif',
-        'color':  'darkred',
-        'weight': 'normal',
-        'size': 16,
-        }
+    #font = {'family': 'serif', 
+    #        'color':  'darkred',
+    #        'weight': 'normal',
+    #    }
+    #        'size': 16,
+    
     #axis.set_title("Max Distance : %3.3f "% (maxDistance))
     # plot max Line
     #axis.add_line(Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
