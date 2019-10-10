@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
-from . import Hole
-from . import Tool
+from .classes import Hole
+from .classes import Tool
 
   
 def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
@@ -25,7 +25,7 @@ def ReadFile(inputFilename, tools, holes, intDigits, decDigits):
     minX = 999.999
     maxX = -999.999
     maxY = -999.999
-    
+
     f = open(inputFilename,"r")
     fl = f.readlines()
     for x in fl:

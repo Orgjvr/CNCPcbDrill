@@ -2,7 +2,9 @@ from flask import Blueprint
 
 main = Blueprint('main', __name__)
 
-from . import views, views_camera, views_serial, views_file
+# views subfolder
+from .views import views, views_serial, views_camera, views_file
+
 from . import models, forms, events
 from .camera import VideoCamera
 

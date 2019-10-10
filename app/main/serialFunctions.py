@@ -1,12 +1,13 @@
 from . import serial_rx_tx
-
+import json
 
 
 def setupSerial():
     global serialPort
     serialPort = serial_rx_tx.SerialPort()
-    getSerialPorts()
-    printSerialPorts()
+    sPorts = getSerialPorts()
+    #printSerialPorts()
+    return sPorts
 
 def getSerialPorts():
     global sPorts

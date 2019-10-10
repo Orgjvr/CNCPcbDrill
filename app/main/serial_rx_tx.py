@@ -48,6 +48,7 @@ class SerialPort:
         return self.isopen
 
     def Open(self,portname,baudrate):
+        
         if not self.isopen:
             # serialPort = 'portname', baudrate, bytesize = 8, parity = 'N', stopbits = 1, timeout = None, xonxoff = 0, rtscts = 0)
             self.serialport.port = portname
@@ -57,7 +58,7 @@ class SerialPort:
                 self.isopen = True
             except:
                 print("Error opening COM port: ", sys.exc_info()[0])
-
+        atexit.register(self.Close)
 
     def Close(self):
         if self.isopen:
@@ -92,7 +93,6 @@ class SerialPort:
             :returns:
                 A list of the serial ports available on the system
         """
-        global ports
         if sys.platform.startswith('win'):
             
             ports = ['COM%s' % (i + 1) for i in range(256)]
@@ -118,6 +118,8 @@ class SerialPort:
                 result.append(port)
             except (OSError, serial.SerialException):
                 pass
+        global sPorts
+        sPorts = result
         return result
         
       

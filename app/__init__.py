@@ -1,9 +1,9 @@
 from flask import Flask #, render_template
 from flask_socketio import SocketIO #, emit
 import logging
+import atexit
 
 socketio = SocketIO()
-
 
 
 def create_app(debug=False):
@@ -27,8 +27,6 @@ def create_app(debug=False):
     app.register_blueprint(main_blueprint)
 
 
-
- 
     socketio.init_app(app)
 
 

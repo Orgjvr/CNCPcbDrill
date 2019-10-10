@@ -1,12 +1,12 @@
 from flask import session, redirect, url_for, render_template, request, Response
-from . import main
+from .. import main
 #from flask import send_from_directory
 import os
 from werkzeug.utils import secure_filename
 import json
 import logging
 from flask import current_app as app
-from . import processFile
+from .. import processFile
 from collections import defaultdict
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -71,7 +71,7 @@ def uploaded_file(filename):
     return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
     #return "uploaded_file rendered"
 
-@main.route('/', methods=['GET', 'POST'])
+#@main.route('/', methods=['GET', 'POST'])
 @main.route('/open_file', methods=['GET', 'POST'])
 def upload_file():
     #logging.basicConfig(level=logging.DEBUG)

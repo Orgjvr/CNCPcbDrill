@@ -1,8 +1,8 @@
 from flask import session, redirect, url_for, render_template, request, Response
-from . import main
+from .. import main
 #from .forms import LoginForm
 import cv2
-from .camera import VideoCamera
+from ..camera import VideoCamera
 import json
 import logging
 from flask import current_app as app
