@@ -1,5 +1,7 @@
 # CNCPcbDrill
 
+## WARNING 2019/10/10: This is not yet a working projet!
+
 To install:
 1) Clone the repository
 2) pip install -r requirements.txt
