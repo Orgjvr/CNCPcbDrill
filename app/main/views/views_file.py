@@ -106,13 +106,20 @@ def create_figure():
     
     #axis.set_title("Max Distance : %3.3f "% (maxDistance))
     # plot max Line
-    #axis.add_line(Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
-    #axis.plot( h0.zeroedAndFlippedPoint, h1.zeroedAndFlippedPoint, linewidth=2, color='red')
+    #axis.add_line(Line2D (job.h1.zeroedAndFlippedPoint, job.h2.zeroedAndFlippedPoint, linewidth=2, color='blue'))
+    #print(job.h1.zeroedAndFlippedPoint)
+    #print(job.h2.zeroedAndFlippedPoint)
+    #NOTE: dont know why these points have to be swopped!!! 
+    axis.plot( job.h2.zeroedAndFlippedPoint,job.h1.zeroedAndFlippedPoint, linewidth=2, color='blue')
+    axis.text(job.h1.zeroedAndFlippedPoint[0],job.h1.zeroedAndFlippedPoint[1], ' Hole 1',size=15) 
+    axis.text(job.h2.zeroedAndFlippedPoint[0],job.h2.zeroedAndFlippedPoint[1], ' Hole 2',size=15)
+    # label holes 
+
     return fig
 
 
 @main.route('/uploads/<filename>')
-def uploaded_file(filename):
+def uploaded_file(filename): 
     #logging.basicConfig(level=logging.DEBUG)
     logging.debug("Building endpoint uploaded_file")
     colordict = dict(app.config.get('COLOR_DICT'))

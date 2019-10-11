@@ -82,6 +82,16 @@ def FindMaxDistanceBetweenHoles(holes):
                 h0 = loop_h0
                 h1 = loop_h1
     logging.debug("Max Distance betwween holes Found : Holes are : %d and %d and the distance is %3.3f "% (h0.holeNumber, h1.holeNumber, maxDistance))
+    #HACK: check to see which of the two holes has a smaller x value 
+    # if so swop 
+    #print("h0 x %3.3f      h1 x %3.3f  "% ( h0.zeroedAndFlippedPoint[0],h1.zeroedAndFlippedPoint[0] ))
+    if(h0.zeroedAndFlippedPoint[0] > h1.zeroedAndFlippedPoint[0]):
+        logging.info("swapping")
+        tmp = h1
+        h1 = h0
+        h0 = tmp
+        #print("h0 x %3.3f      h1 x %3.3f  "% ( h0.zeroedAndFlippedPoint[0],h1.zeroedAndFlippedPoint[0] ))
+
     return h0, h1, maxDistance
 
 def CalculateDistanceBetweenHoles(h0, h1):

@@ -192,6 +192,7 @@ def ReadFile(job):
 
     # get maxDistance
     job.h1, job.h2, job.maxDistance = Hole.FindMaxDistanceBetweenHoles(job.holes)
+    
     logging.info("Max Distance is between hole: %d and %d with a distance of %f"% (job.h1.holeNumber, job.h2.holeNumber, job.maxDistance))
 
 
