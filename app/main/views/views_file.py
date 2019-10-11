@@ -12,65 +12,11 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import io
+from ..classes import Job
+
+job = Job.Job()
 
 ALLOWED_EXTENSIONS = set(['drl', 'txt', 'xln'])
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def create_figure():
-    logging.info("creating Figure.........")
-    fig = Figure()
-    axis = fig.add_subplot(1, 1, 1)
-    #fig = plt.figure(figsize=(10,8))
-    
-    colordict = dict(app.config.get('COLOR_DICT'))
-    #cnt = 0
-    for h in g_holes:
-        #if(cnt < 260):
-            px = h.zeroedAndFlippedPoint[0]
-            py = h.zeroedAndFlippedPoint[1] 
-            #axis.plot(px, py, color=colordict[h.toolNum],markersize=toolDict[h.toolNum]*2 ,marker='o')
-            logging.info("Plotting hole: "+str(h.holeNumber))
-            axis.plot(px, py, color=colordict[h.toolNum],markersize=(h.size)*2 ,marker='o')
-        #    cnt += 1
-        #else:
-        #    break
-    #font = {'family': 'serif', 
-    #        'color':  'darkred',
-    #        'weight': 'normal',
-    #    }
-    #        'size': 16,
-    
-    #axis.set_title("Max Distance : %3.3f "% (maxDistance))
-    # plot max Line
-    #axis.add_line(Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
-    #axis.plot( h0.zeroedAndFlippedPoint, h1.zeroedAndFlippedPoint, linewidth=2, color='red')
-    return fig
-
-
-@main.route('/uploads/<filename>')
-def uploaded_file(filename):
-    #logging.basicConfig(level=logging.DEBUG)
-    logging.debug("Building endpoint uploaded_file")
-    colordict = dict(app.config.get('COLOR_DICT'))
-    toolCollection = dict()
-    for t in g_tools:
-        tool = dict()
-        tool["toolNum"] = int(t.toolNum)
-        tool["size"] = float(t.size)
-        tool["holeCount"] = t.holeCount
-        tool["color"] = colordict[int(t.toolNum)]
-        toolCollection[int(t.toolNum)] = tool
-    #print("urlmap")
-    #print(app.url_map)
-    #for t in toolCollection:
-    #    td = toolCollection[t]
-    #    #print(td)
-    #return render_template('index.html', toolCollection=toolCollection, sPorts=sPorts, checkit=checkit, serialPort=serialPort)
-    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
-    #return "uploaded_file rendered"
 
 #@main.route('/', methods=['GET', 'POST'])
 @main.route('/open_file', methods=['GET', 'POST'])
@@ -110,11 +56,9 @@ def upload_file():
             #intDigits = int(app.config.get('INTEGER_DIGITS_IN_DRILLFILE'))
             #decDigits = int(app.config.get('DECIMAL_DIGITS_IN_DRILLFILE'))
             #print("About to process file....")
-            global g_holes
-            g_holes = []
-            global g_tools
-            g_tools = []
-            processFile.ReadFile(filepath, g_tools, g_holes)
+            
+            job.newJob(filepath)
+            #processFile.ReadFile(job)
             #processFile(filepath)
             return redirect(url_for('main.uploaded_file', filename=filename))
             #return 'uploads/'+str(filename)
@@ -129,6 +73,66 @@ def upload_file():
     </form>
     
     '''
+
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def create_figure():
+    logging.info("creating Figure.........")
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    #fig = plt.figure(figsize=(10,8))
+    
+    colordict = dict(app.config.get('COLOR_DICT'))
+    #cnt = 0
+    for h in job.holes:
+        #if(cnt < 260):
+            px = h.zeroedAndFlippedPoint[0]
+            py = h.zeroedAndFlippedPoint[1] 
+            #axis.plot(px, py, color=colordict[h.toolNum],markersize=toolDict[h.toolNum]*2 ,marker='o')
+            logging.info("Plotting hole: "+str(h.holeNumber))
+            axis.plot(px, py, color=colordict[h.toolNum],markersize=(h.size)*2 ,marker='o')
+        #    cnt += 1
+        #else:
+        #    break
+    #font = {'family': 'serif', 
+    #        'color':  'darkred',
+    #        'weight': 'normal',
+    #    }
+    #        'size': 16,
+    
+    #axis.set_title("Max Distance : %3.3f "% (maxDistance))
+    # plot max Line
+    #axis.add_line(Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+    #axis.plot( h0.zeroedAndFlippedPoint, h1.zeroedAndFlippedPoint, linewidth=2, color='red')
+    return fig
+
+
+@main.route('/uploads/<filename>')
+def uploaded_file(filename):
+    #logging.basicConfig(level=logging.DEBUG)
+    logging.debug("Building endpoint uploaded_file")
+    colordict = dict(app.config.get('COLOR_DICT'))
+    toolCollection = dict()
+    for t in job.tools:
+        tool = dict()
+        tool["toolNum"] = int(t.toolNum)
+        tool["size"] = float(t.size)
+        tool["holeCount"] = t.holeCount
+        tool["color"] = colordict[int(t.toolNum)]
+        toolCollection[int(t.toolNum)] = tool
+    #print("urlmap")
+    #print(app.url_map)
+    #for t in toolCollection:
+    #    td = toolCollection[t]
+    #    #print(td)
+    #return render_template('index.html', toolCollection=toolCollection, sPorts=sPorts, checkit=checkit, serialPort=serialPort)
+    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
+    #return "uploaded_file rendered"
+
 
 @main.route('/plot_png')
 def plot_png():

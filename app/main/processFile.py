@@ -2,9 +2,13 @@ import logging
 from collections import defaultdict
 from .classes import Hole
 from .classes import Tool
+from .classes import Job
 
+#def ReadFile(job):
+#    job.h1, job.h2, job.maxDistance = ReadFile(job.inputFilename, job.tools, job.holes)
   
-def ReadFile(inputFilename, tools, holes):
+#def ReadFile(inputFilename, tools, holes):
+def ReadFile(job):
     #params needed: 
     # 1 File name
     # 2 This is our toolsDict dictionary which will be populated
@@ -12,16 +16,20 @@ def ReadFile(inputFilename, tools, holes):
     # 4 Digits in front of Decimal. Normally 3
     # 5 Digits following Decimal. Normally 3
     
+    inputFilename = job.inputFilename
+
+
+
     inHeader = True
-    isMetric = False
-    isInch = False
-    isLZ = False
-    isTZ = False    
-    intDigits = -1
-    decDigits = -1
+    job.isMetric = False
+    job.isInch = False
+    job.isLZ = False
+    job.isTZ = False    
+    job.intDigits = -1
+    job.decDigits = -1
     currentTool = -1
     holeNum = 0
-    fileType = ""
+    job.fileType = ""
     
     #NOTE: added get min & max for holes into read loop 
     minY = 999.999
@@ -45,13 +53,13 @@ def ReadFile(inputFilename, tools, holes):
         '''
 
         if "KiCad" in x:
-            fileType = "K"
+            job.fileType = "K"
             
         if "EAGLE" in x:
-            fileType = "E"
+            job.fileType = "E"
 
 
-        if "FORMAT=" in x and fileType == "K":
+        if "FORMAT=" in x and job.fileType == "K":
             pos = x.find("{")
             endpos = x.find("}")
             logging.debug(" start " + str(pos))
@@ -61,41 +69,41 @@ def ReadFile(inputFilename, tools, holes):
             for p in parts:
                 if ":" in p:
                     decs = p.split(":")
-                    intDigits = int(decs[0])
-                    decDigits = int(decs[1])
-            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (fileType, intDigits, decDigits))
+                    job.intDigits = int(decs[0])
+                    job.decDigits = int(decs[1])
+            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (job.fileType, job.intDigits, job.decDigits))
 
         #Determine if we reached the end of the Header section yet
         if x[0] == '%' or "M95" in x:
             inHeader = False
             logging.debug("Found end of Header")
-            if intDigits == -1 or decDigits == -1:
+            if job.intDigits == -1 or job.decDigits == -1:
                 #format not found 
                 logging.warn("format not found in file, setting default of 3:3")
-                intDigits = 3
-                decDigits = 3
+                job.intDigits = 3
+                job.decDigits = 3
 
         if inHeader:
             if "METRIC" in x:
-                if(fileType == "E"):
+                if(job.fileType == "E"):
                     parts = x.split(",")
                     for p in parts:
                         if "0.0" in p:
                             decs = p.split(".")
-                            intDigits = decs[0].__len__()
-                            decDigits = decs[1].__len__()
+                            job.intDigits = decs[0].__len__()
+                            job.decDigits = decs[1].__len__()
                             logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (fileType, intDigits, decDigits))
 
-                isMetric = True
+                job.isMetric = True
                 logging.debug("Found metric")
             if "INCH" in x:
-                isInch = True
+                job.isInch = True
                 logging.debug("Found inch")
             if "TZ" in x:
-                isTZ = True
+                job.isTZ = True
                 logging.debug("Found TZ")
             if "LZ" in x:
-                isLZ = True
+                job.isLZ = True
                 logging.debug("Found LZ")
             if x[0] == "T" and "C" in x:
                 #Found a tool
@@ -104,13 +112,13 @@ def ReadFile(inputFilename, tools, holes):
                 toolSize = parts[1].strip()
                 logging.debug("Found a Tool - Toolnumber=%s with Size=%s", toolNumber, toolSize)
                 #toolsDict[toolNumber] = toolSize.strip()
-                tools.append(Tool.Tool(toolNumber, toolSize, "0"))
+                job.tools.append(Tool.Tool(toolNumber, toolSize, "0"))
 
         if not inHeader:
             #read Tools
             if x[0] == "T":
                 currentTool = int(x[1:5].strip())
-                toolSize = tools[currentTool-1].size
+                toolSize = job.tools[currentTool-1].size
                 logging.info("ToolSize=<"+str(toolSize)+">")
 
             
@@ -118,15 +126,15 @@ def ReadFile(inputFilename, tools, holes):
             if x.startswith("X") and "Y" in x:
                 # we have a hole 
                 parts = x.split("Y")
-                xpart = parts[0][1:(1+intDigits+decDigits)]
+                xpart = parts[0][1:(1+job.intDigits+job.decDigits)]
                 ypart = parts[1]
-                if isTZ:
-                    xval = float(xpart)/(10**decDigits)
-                    yval = float(ypart)/(10**decDigits)
+                if job.isTZ:
+                    xval = float(xpart)/(10**job.decDigits)
+                    yval = float(ypart)/(10**job.decDigits)
                 else:
                     #Thus it must be isLZ
-                    xval = float(xpart[0:intDigits]+"."+xpart[intDigits:intDigits+decDigits])
-                    yval = float(ypart[0:intDigits]+"."+ypart[intDigits:intDigits+decDigits])
+                    xval = float(xpart[0:job.intDigits]+"."+xpart[job.intDigits:job.intDigits+job.decDigits])
+                    yval = float(ypart[0:job.intDigits]+"."+ypart[job.intDigits:job.intDigits+job.decDigits])
                 filePoint = xval, yval
 
                 # igoring vxal == maxX as it will not change anything 
@@ -142,8 +150,8 @@ def ReadFile(inputFilename, tools, holes):
 
                 holeNum = holeNum + 1
                 logging.info("Found a Hole - Holenumber=%s with X=%s and Y=%s and line=%s", holeNum, xval, yval, x)
-                holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolSize, isMetric))
-                tools[currentTool-1].holeCount += 1
+                job.holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolSize, job.isMetric))
+                job.tools[currentTool-1].holeCount += 1
 
             
                 # Warn if Toolnumber=0 
@@ -155,38 +163,35 @@ def ReadFile(inputFilename, tools, holes):
     f.close()
 
     #Sanities
-    if isInch and isMetric:
+    if job.isInch and job.isMetric:
         logging.warning("Found both METRIC and INCH. Assume METRIC")
-        isMetric = True
-        isInch = False
+        job.isMetric = True
+        job.isInch = False
 
-    if not (isInch or isMetric):
+    if not (job.isInch or job.isMetric):
         logging.warning("Did not find either METRIC or INCH. Assume METRIC")
-        isMetric = True
+        job.isMetric = True
     
-    if isLZ and isTZ:
+    if job.isLZ and job.isTZ:
         logging.warning("Found both TZ and LZ. Assume TZ")
-        isTZ = True
-        isLZ = False
+        job.isTZ = True
+        job.isLZ = False
 
-    if not (isLZ or isTZ):
+    if not (job.isLZ or job.isTZ):
         logging.warning("Did not find either TZ and LZ. Assume TZ")
-        isTZ = True
+        job.isTZ = True
 
     #print tools
     #print("Now print tools:")
     #Tool.PrintTools(tools)
 
     # flip & zero
-    for h in holes:
+    for h in job.holes:
         h.translateAndFlipHole(minY, maxY, minX )
     #print("Holes translated & flipped")
 
     # get maxDistance
-    global maxDistance
-    global h0
-    global h1
-    h0, h1, maxDistance = Hole.FindMaxDistanceBetweenHoles(holes)
-    logging.info("Max Distance is between hole: %d and %d with a distance of %f"% (h0.holeNumber, h1.holeNumber, maxDistance))
+    job.h1, job.h2, job.maxDistance = Hole.FindMaxDistanceBetweenHoles(job.holes)
+    logging.info("Max Distance is between hole: %d and %d with a distance of %f"% (job.h1.holeNumber, job.h2.holeNumber, job.maxDistance))
 
 
