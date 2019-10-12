@@ -4,10 +4,11 @@ from .. import main
 import json
 import logging
 from flask import current_app as app
+#from .. import serial_rx_tx
+from .. import serialFunctions
 
+import time
 
-#TODO: add send of json camera list from GetCameras
-#TODO: add dynamic route to activate camera /c/2 
 
 @main.route('/getSerialDefault')
 def getSerialDefault(): 
@@ -21,10 +22,71 @@ def getSerialDefault():
     return Response("Baudrate = " + str(baudRate))
 
 @main.route('/getSerialPorts')
-def getSerialPorst():
+def getSerialPorts():
     global sPorts
-    sPorts = serialPort.GetSerialPorts()
+    sPorts = serialFunctions.getSerialPorts()
     return Response(json.dumps(sPorts))
 
-    #return "Camera %d activated"% (camIndex)
 
+@main.route('/get3dPos')
+def get3dPos():
+    pos = serialFunctions.WriteToSerial("?")
+    if pos[0] == "<":
+        pos=pos[1:]
+    if pos[-1] == ">":
+        pos=pos[:-1]
+    return Response(str(pos))
+
+
+@main.route('/moveXY10')
+def moveXY10():
+    pos = serialFunctions.WriteToSerial("$J=G91 X10 Y10 F300")
+    #pos = serialFunctions.WriteToSerial("?")
+    if pos[0] == "<":
+        pos=pos[1:]
+    if pos[-1] == ">":
+        pos=pos[:-1]
+    return Response(str(pos))
+
+
+@main.route('/open_port/<portName>/<baud>')
+def open_port(portName,baud):
+    #global serialPort
+    #serialPort = serial_rx_tx.SerialPort()
+    portName = portName.replace("~","/")
+    serialFunctions.openSerialPort(portName,baud)
+    #print('in Open_Port  Name: %s and baud rate %s'% (portName, baud))
+    #serialPort.Open(portName,baud)
+    #print("Port opened")
+    #serialPort.RegisterReceiveCallback(serialFunctions.OnReceiveSerialData)
+    #print("Callback registered")
+    #time.sleep(10)
+    #serialPort.Send("?")
+    #serialPort.Send("$J=G91 X10 Y10 F300")
+    #serialPort.Send("?")
+
+    #get_coms()
+    return "nothing"
+
+
+@main.route('/close_port')
+def close_port():
+    serialFunctions.closeSerialPort()
+    return "nothing"
+
+
+
+@main.route('/get_coms')
+def get_coms():
+    #global serialPort
+    #serialPort = serial_rx_tx.SerialPort()
+    #serialFunctions.serialPort.Send("?")
+    #serialFunctions.serialPort.Send("$J=G91 X10 Y10 F300")
+    serialFunctions.WriteToSerial("$")
+    serialFunctions.WriteToSerial("?")
+
+    return "nothing"
+
+def OnReceiveSerialData(message):
+    str_message = message.decode("utf-8")
+    print("fokop:%s"%(str_message))
