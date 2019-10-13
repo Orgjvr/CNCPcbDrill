@@ -28,13 +28,15 @@ def getSerialPorts():
     return Response(json.dumps(sPorts))
 
 
+@main.route('/getStatus')
+def getStatus():
+    status = serialFunctions.getStatus()
+    return Response(str(status))
+
+
 @main.route('/get3dPos')
 def get3dPos():
-    pos = serialFunctions.getStatus()
-    if pos[0] == "<":
-        pos=pos[1:]
-    if pos[-1] == ">":
-        pos=pos[:-1]
+    pos = serialFunctions.get3dPos()
     return Response(str(pos))
 
 

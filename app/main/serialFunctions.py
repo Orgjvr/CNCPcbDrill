@@ -138,6 +138,12 @@ def getStatus():
         result = gCodeGrbl.getStatus()
     return result
 
+def get3dPos():
+    result = ""
+    if gcodeFlavor == 'G':
+        result = gCodeGrbl.get3dPos()
+    return result
+
 
 
 global serialPort
