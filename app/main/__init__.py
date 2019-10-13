@@ -13,7 +13,7 @@ from . import cameraFunctions
 from . import processFile
 
 
-serialFunctions.printSerialPorts()
+#serialFunctions.printSerialPorts()
 
 
 

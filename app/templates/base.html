@@ -12,7 +12,10 @@
         socket.on('connect', function() {
             socket.emit('joined', {});
             console.log('Websocket connected!');
-            setInterval(update_pos, 500)
+            getSerialPorts();
+            getBaudrates();
+            getCameras();
+            setInterval(mustPollPosition, 500);
         });
         socket.on('position', function(data) {
             console.log('Data='+data);
@@ -27,12 +30,114 @@
             console.log(data);
         });
     }
+    
     function connect_serial() {
-        socket.emit('openSerial', '/dev/ttyACM1' ,'115200', function(data) {
+        var dropdown = document.getElementById("cmbComPort");
+        var selectedPort = dropdown.options[dropdown.selectedIndex].value;
+        var dropdownBaud = document.getElementById("cmbBaud");
+        var baud = dropdownBaud.options[dropdownBaud.selectedIndex].value;
+        console.log('D='+selectedPort);
+        if ( dropdown.selectedIndex != 0 ) {
+            socket.emit('openSerial', selectedPort ,baud, function(data) {
+                console.log('Serial status:');
+                console.log(data);
+                if (data == true) {
+                    console.log("Change button to disconnect");
+                    document.getElementById("btnDisconnect").style.display = "inline";
+                    document.getElementById("btnConnect").style.display = "none";
+                }
+            });
+          }
+        }
+        
+    function disconnect_serial() {
+        socket.emit('closeSerial', function(data) {
             console.log('Serial status:');
             console.log(data);
+            if (data == true) {
+                console.log("Change button to disconnect");
+                document.getElementById("btnConnect").style.display = "inline";
+                document.getElementById("btnDisconnect").style.display = "none";
+            }
         });
     }
+        
+    function getSerialPorts() {
+        socket.emit('getSerialPorts', function(data) {
+            console.log('getSerialPorts:');
+            console.log('Data='+data);
+
+            dropdown = $('#cmbComPort');
+            dropdown.empty();
+            dropdown.append('<option selected="true" disabled>Choose serial port</option>');
+            dropdown.prop('selectedIndex', 0);
+            for (i in data) {
+              console.log('DataA='+data[i]);
+              dropdown.append($('<option></option>').attr('value', data[i]).text(data[i]));
+            }
+        });
+      }
+
+    function getBaudrates() {
+      console.log('getBaudrates:');
+      dropdown = $('#cmbBaud');
+      dropdown.empty();
+      dropdown.prop('selectedIndex', 1);
+      dropdown.append($('<option></option>').attr('value', 250000).text(250000));
+      dropdown.append($('<option selected="true"></option>').attr('value', 115200).text(115200));
+      dropdown.append($('<option></option>').attr('value', 57600).text(57600));
+      dropdown.append($('<option></option>').attr('value', 38400).text(38400));
+      dropdown.append($('<option></option>').attr('value', 9600).text(9600));
+    }
+
+    function mustPollPosition() {
+      console.log('check mustPollPosition');
+      var checkBox = document.getElementById("mustPoll");
+      if (checkBox.checked == true){
+          update_pos();
+      }
+    }
+  
+    function getCameras() {
+      console.log('getCameras called');
+      disable_cam();
+      socket.emit('getCameras', function(data) {
+          console.log('getCameras:');
+          console.log('Data='+data);
+
+          dropdown = $('#cmbCameras');
+          dropdown.empty();
+          dropdown.append('<option selected="true" disabled>Choose Camera</option>');
+          dropdown.prop('selectedIndex', 0);
+          for (i in data) {
+            console.log('DataC='+data[i]);
+            dropdown.append($('<option></option>').attr('value', data[i]).text(data[i]));
+          }
+      });
+    }
+    
+
+    function enable_cam() {
+      console.log('enable_cam() called');
+      var p = document.getElementById('camdiv');
+      var newElement = document.createElement('img');
+      newElement.setAttribute('id', 'camfeed');
+      newElement.setAttribute('src', "{{ url_for('main.video_feed') }}");
+      p.appendChild(newElement);  
+      document.getElementById("btnCamOff").style.display = "inline";
+      document.getElementById("btnCamOn").style.display = "none";
+    }
+    
+    function disable_cam() {
+      console.log('disable_cam() called');
+      var elem = document.getElementById("camfeed");
+      if (elem != null) {
+          elem.remove();
+      }
+      document.getElementById("btnCamOn").style.display = "inline";
+      document.getElementById("btnCamOff").style.display = "none";
+    }
+
     
 </script>
 
@@ -49,8 +154,8 @@
         alert( "error" );
       });
     });
-
     console.log("defining cmdChanged")
+
     $('#cmbSelectComPort').bind('change', function() {
       console.log("in cmbChanged");
       var selObject = document.getElementById('cmbSelectComPort'); 
@@ -88,8 +193,17 @@
 
 </head>
   <body>
-      <a href="#" onclick="update_pos();">Update Position</a>
-      <a href="#" onclick="connect_serial();">Connect Serial</a>
+      <button onclick="getSerialPorts()">Refresh Ports</button>
+      <select id="cmbComPort" > </select>
+      <select id="cmbBaud" > </select>
+      <button id="btnConnect" onclick="connect_serial()">Connect</button>
+      <button id="btnDisconnect" onclick="disconnect_serial()" style="display:none;">Disconnect</button>
+      Enable Position updates: <input type="checkbox" id="mustPoll">
+      <button onclick="getCameras()">Refresh Cameras</button>
+      <select id="cmbCameras" > </select>
+      <button id="btnCamOn" onclick="enable_cam()" style="display:none;">Enable Camera</button>
+      <button id="btnCamOff" onclick="disable_cam()">Disable Camera</button>
+      <button onclick="update_pos()">Update Position</button>
       <HR>
         {% block content %} {% endblock %}
   </body>

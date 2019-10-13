@@ -17,8 +17,13 @@ def setupSerial():
     return sPorts
 
 def getSerialPorts():
-    GetSerialPorts()
-    return sPorts
+    portlist = GetSerialPorts()
+    result ='"{'
+    for port in portlist:
+        result += "portname:'" + port +"',"
+    result = result[:-1]+'}"'
+    print("Portlist:"+result)
+    return result
 
 def printSerialPorts():
     print("Ports=")
@@ -32,6 +37,7 @@ def closeSerialPort():
         serialPort.close()
     except:
         pass
+    return True
 
 def openSerialPort(portName,baud):
     """ Open a serial port at a specified baud rate.

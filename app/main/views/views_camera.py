@@ -2,6 +2,7 @@ from flask import session, redirect, url_for, render_template, request, Response
 from .. import main
 #from .forms import LoginForm
 import cv2
+from .. import cameraFunctions
 from ..camera import VideoCamera
 import json
 import logging
@@ -22,29 +23,13 @@ def activateCam(cam_num):
 
 @main.route('/get_cameras')
 def get_cameras():
-    logging.basicConfig(level=logging.DEBUG)
-    #index = 2
-    arr = []
-    for index in range(5):
-        try:
-            logging.debug("Try to read camera no <" + str(index) + ">")
-            cap = cv2.VideoCapture(index)
-            if not cap.read()[0]:
-                logging.debug("Cannot read camera no <" + str(index) + ">")
-                #break
-            else:
-                logging.info("Adding camera no <" + str(index) + ">")
-                arr.append(index)
-                index += 1
-                cap.release()
-        except:
-            logging.error("Cannot close")
-            #break
+    print("in view for get_cameras")
+    cams = cameraFunctions.get_cameras()
+    #result = "{"
+    #for c in cams:
 
-    global sCameras
-    sCameras = arr
-    logging.debug("Returning " + json.dumps(arr))
-    return Response(json.dumps(arr))
+    #return Response(cameraFunctions.get_cameras())
+    return Response(json.dumps(cams))
 
 
 def gen(camera):
