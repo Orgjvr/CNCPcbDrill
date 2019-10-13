@@ -12,6 +12,7 @@
         socket.on('connect', function() {
             socket.emit('joined', {});
             console.log('Websocket connected!');
+            setInterval(update_pos, 500)
         });
         socket.on('position', function(data) {
             console.log('Data='+data);
