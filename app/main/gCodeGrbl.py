@@ -35,3 +35,4 @@ def get3dPos():
     print("xyz=<"+xyzpos+">")
     pos = "{"+xyzpos+"}"
     return pos
+    
