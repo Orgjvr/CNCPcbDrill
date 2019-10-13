@@ -30,7 +30,7 @@ def getSerialPorts():
 
 @main.route('/get3dPos')
 def get3dPos():
-    pos = serialFunctions.WriteToSerial("?")
+    pos = serialFunctions.getStatus()
     if pos[0] == "<":
         pos=pos[1:]
     if pos[-1] == ">":

@@ -8,12 +8,12 @@ import _thread
 import glob
 import logging
 #import atexit
+from . import gCodeGrbl
+from flask import current_app as app
+#from . import main
 
 def setupSerial():
-    #global serialPort
-    #serialPort = serial_rx_tx.SerialPort()
     sPorts = getSerialPorts()
-    #printSerialPorts()
     return sPorts
 
 def getSerialPorts():
@@ -44,46 +44,60 @@ def openSerialPort(portName,baud):
     """
     global serialPort
     global serialIsOpen
+    global gcodeFlavor
+    gcodeFlavor = app.config.get('GCODE_FLAVOUR')
     if serialIsOpen:
         closeSerialPort()
     logging.debug('openSerialPort Name: %s and baud rate %s'% (portName, baud))
     serialPort = serial.Serial(portName,baud,timeout=10)
     serialIsOpen = True
     logging.debug("Serial Port <%s> opened"%(portName))
-    WakeupGrbl()
+    if gcodeFlavor == 'G':
+        gCodeGrbl.Wakeup()
     return serialIsOpen
 
+def flushInput():
+    global serialPort
+    if serialIsOpen:
+        serialPort.flushInput()  # Flush startup text in serial input
+        return "Serial Input flushed"    
+    else:
+        logging.debug("Not flushed - Port Is NOT open")
+        return "Not flushed - Port Is NOT open"    
 
-def WriteToSerial(message): #This will return the value which was returned from the serial port.
+
+def WriteToSerial(message, timeout=10): #This will return the value which was returned from the serial port.
     #TODO: implement a timeout waiting for ok response
-    timeout = 10
+    #timeout = 10 #Max time in seconds to wait for result on serial port
     starttime=time.time()
-    print("Trying to send:<%s>"%(message))
+    logging.debug("Trying to send:<%s>"%(message))
     if serialIsOpen:
         gotMsg = False
         l = message.strip() # Strip all EOL characters for consistency
-        print('Sending: ' + l)
-        l = l + '\r\n'
+        l = l.encode('utf-8')
+        #print('Sending: <' + str(l) + '>' )
+        l = l + '\r\n'.encode('utf-8')
         global serialPort
         serialPort.flushInput()  # Flush old unreceived responses
-        serialPort.write((l).encode('utf-8')) # Send g-code block to grbl
+        serialPort.write((l)) # Send g-code block to grbl
         #loop until ok
         grbl_out_str = ""
-        print("will read Line")
+        logging.debug("will read Line")
         grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-        print("Line read")
+        logging.debug("Line read")
         while grbl_out.decode('utf-8').strip() != 'ok' and starttime+timeout > time.time():
             gotMsg = True
             grbl_out_str += str(grbl_out.decode('utf-8').strip())
             grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-            print(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
+            logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
         if not (gotMsg):
             grbl_out_str = " "
-        print(' : ' + grbl_out_str)
+        logging.debug(' : ' + grbl_out_str)
         return grbl_out_str
     else:
-        print("Not Sent - Port Is NOT open")
+        logging.debug("Not Sent - Port Is NOT open")
         return "Not Sent - Port Is NOT open"    
+
 
 
 def GetSerialPorts():
@@ -118,23 +132,22 @@ def GetSerialPorts():
     #sPorts = result
     return result
 
+def getStatus():
+    result = ""
+    if gcodeFlavor == 'G':
+        result = gCodeGrbl.getStatus()
+    return result
 
-def WakeupGrbl():
-    # Wake up grbl
-    global serialPort
-    serialPort.write("\r\n\r\n".encode('utf-8'))
-    time.sleep(2)   # Wait for grbl to initialize 
-    serialPort.flushInput()  # Flush startup text in serial input
-    print("wakey wakey")
-    WriteToSerial("?")
 
 
 global serialPort
 global sPorts
 global serialIsOpen
+global gcodeFlavor
+
 serialIsOpen = False
 sPorts = GetSerialPorts()
-print("printSerialPorts")
-printSerialPorts()
+logging.debug("printSerialPorts")
+logging.debug(printSerialPorts())
 
 
