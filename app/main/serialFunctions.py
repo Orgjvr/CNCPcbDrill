@@ -134,8 +134,12 @@ def GetSerialPorts():
 
 def getStatus():
     result = ""
-    if gcodeFlavor == 'G':
-        result = gCodeGrbl.getStatus()
+    if serialIsOpen:
+        if gcodeFlavor == 'G':
+            result = gCodeGrbl.getStatus()
+    else:
+        logging.debug("No Status - Port Is NOT open")
+        return "No Status - Port Is NOT open"    
     return result
 
 def get3dPos():

@@ -17,8 +17,8 @@
                     {% for td in toolCollection %}
 
                     <tr>
-                        <td>{{ td }}</td>
                         <td  >{{ toolCollection[td]["size"] }}</td>
+                        <td>{{ td }}</td>
                         <td>{{ toolCollection[td]["holeCount"] }}</td>
                         <td style="background-color:{{ toolCollection[td]['color'] }}">&nbsp; </td>
                     </tr>
@@ -30,11 +30,11 @@
                 <img src="{{ url_for('main.plot_png') }}" width="480" height="320">
         
             </td>
-            <!-- - ->
+            <!-- -->
             <td>
                 <img src="{{ url_for('main.video_feed') }}" width="320" height="240">
             </td>
-            <!- - -->
+            <!-- -->
                     
         </tr>
     </table>
@@ -81,13 +81,13 @@
             <table border=1 style="border-collapse:collapse">
                 <tr><th colspan=2 style="font-size:xx-large;">COORDINATES</th></tr>
                 <tr>
-                <th><span style="font-size:xx-large;">X:</span></th><td style="text-align: center"><span style="font-size:xx-large;">000.000</span></td></td>
+                <th><span style="font-size:xx-large;">X:</span></th><td style="text-align: center"><span style="font-size:xx-large;" id="xpos">000.000</span></td></td>
                 </tr>
                 <tr>
-                <th><span style="font-size:xx-large;">Y:</span></th><td style="text-align: center"><span style="font-size:xx-large;">000.000</span></td></td>
+                <th><span style="font-size:xx-large;">Y:</span></th><td style="text-align: center"><span style="font-size:xx-large;" id="ypos">000.000</span></td></td>
                 </tr>
                 <tr>
-                <th><span style="font-size:xx-large;">Z:</span></th><td style="text-align: center"><span style="font-size:xx-large;">000.000</span></td></td>
+                <th><span style="font-size:xx-large;">Z:</span></th><td style="text-align: center"><span style="font-size:xx-large;" id="zpos">000.000</span></td></td>
                 </tr>
                 <tr>
                 <td colspan=2 style="text-align: center">  
