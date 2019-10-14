@@ -14,6 +14,15 @@ def get3dPos(message):
     return pos
 
 
+@socketio.on('runCmd', namespace='/sock')
+def runCmd(cmdText):
+    #print('running cmd ' + cmdText)
+    try:
+        success = serialFunctions.runCmd(cmdText)
+    except Exception as e:
+        print(e)
+    return success
+
 @socketio.on('jog', namespace='/sock')
 def jog(code, isShift):
     print("jogging, code =" + code + "shift = " + str(isShift))

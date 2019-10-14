@@ -6,29 +6,43 @@
         <tr>
             <td style='vertical-align:top;'>
             <div id='toolTable'></div>
-                <h2> Tools </h2>
-                <table style="border-style: solid; border-collapse:collapse;">
+                 <table border="1" style=" border-collapse:collapse;">
                     <tr>
-                        <th>#</th>
-                        <th>size</th>
-                        <th>count</th>
-                        <th>colour</th>
+                        <th colspan="4" align="center" style="font:small-caption;"><b>Tools</b></th>
+                    </tr>
+                    <tr>
+                        <th style="font:status-bar;">#</th>
+                        <th style="font:status-bar;">size</th>
+                        <th style="font:status-bar;">count</th>
+                        <th style="font:status-bar;">colour</th>
                     </tr>
                     {% for td in toolCollection %}
 
                     <tr>
-                        <td  >{{ toolCollection[td]["size"] }}</td>
-                        <td>{{ td }}</td>
-                        <td>{{ toolCollection[td]["holeCount"] }}</td>
+                        <td style="font:status-bar;text-align: center; ">{{ td }}</td>
+                        <td style="font:status-bar;text-align: center;" >{{ toolCollection[td]["size"] }}</td>
+                        <td style="font:status-bar;text-align: right;">{{ toolCollection[td]["holeCount"] }}</td>
                         <td style="background-color:{{ toolCollection[td]['color'] }}">&nbsp; </td>
                     </tr>
                     {% endfor %}
                 </table>
             </td>
             <td>
-                <div id='holePlot'></div>
-                <img src="{{ url_for('main.plot_png') }}" width="480" height="320">
-        
+                <table border="0" style="padding:0;">
+                    <tr>
+                        <td style="text-align: center; ">
+                            <label style="font:caption; font-size:x-large;">PCB Hole Display</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="{{ url_for('main.plot_png') }}" width="480" height="320">
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- <div id='holePlot'></div> -->
+                
             </td>
             <!-- - ->
             <td>
@@ -43,21 +57,48 @@
 </div>
 <div id='cncControl'>
     
-    <table border=0>
+    <table border=1 style="border-collapse: collapse;">
         <tr>
-            <td>
+            <td style="vertical-align: text-top;"> 
             <table border=1 style="border-collapse:collapse">
-                <tr><th colspan=2 style="font-size:xx-large;">COORDINATES</th></tr>
+                <tr><th colspan=2 style="font:caption;font-size: larger;">COORDINATES</th></tr>
                 <tr>
-                <th><span style="font-size:xx-large;">X:</span></th><td style="text-align: center"><span style="font-size:xx-large;" id="xpos">000.000</span></td></td>
+                <th><span style="font:caption;font-size: larger;">X:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="xpos">000.000</span></td></td>
                 </tr>
                 <tr>
-                <th><span style="font-size:xx-large;">Y:</span></th><td style="text-align: center"><span style="font-size:xx-large;" id="ypos">000.000</span></td></td>
+                <th><span style="font:caption;font-size: larger;">Y:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="ypos">000.000</span></td></td>
                 </tr>
                 <tr>
-                <th><span style="font-size:xx-large;">Z:</span></th><td style="text-align: center"><span style="font-size:xx-large;" id="zpos">000.000</span></td></td>
+                <th><span style="font:caption;font-size: larger;">Z:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="zpos">000.000</span></td></td>
                 </tr>
             </table>
+            <span style="font:caption; font-style:italic">To Jog, Use Arrow keys</br>Normal move = 10mm<br>Shift move = 1mm<br>Ensure [Allow Jog] is checked!  </span>
+            </td>
+            <td>
+                <table border="0">
+                    <tr>
+                        <td style="font:small-caption; font-style: italic; text-align: center; " >(click on line to re-run)</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center; font:caption">GCODE LOG</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" id="txtGcode"/>
+                            <button id="btnTest" onclick="addOption()">Send</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select multiple id="sm1" style="height: 100%;width: 200px;" size="15" onchange="logSelect(this.selectedIndex)" >
+                                <option>G0 X100 Y100</option>
+                                <option>G1 X10 Y10 F1000</option>
+                                <option>G28</option>
+                                <option>G0 X20 Y20 Z30 F3000</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
         </table>

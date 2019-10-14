@@ -75,31 +75,42 @@ def flushInput():
 def WriteToSerial(message, timeout=10): #This will return the value which was returned from the serial port.
     #TODO: implement a timeout waiting for ok response
     #timeout = 10 #Max time in seconds to wait for result on serial port
+    #print("in Write to Serial")
+    logging.basicConfig(level=logging.INFO)
     starttime=time.time()
     logging.debug("Trying to send:<%s>"%(message))
+    #print("Trying to send:<%s>"%(message))
     if serialIsOpen:
-        gotMsg = False
-        l = message.strip() # Strip all EOL characters for consistency
-        l = l.encode('utf-8')
-        #print('Sending: <' + str(l) + '>' )
-        l = l + '\r\n'.encode('utf-8')
-        global serialPort
-        serialPort.flushInput()  # Flush old unreceived responses
-        serialPort.write((l)) # Send g-code block to grbl
-        #loop until ok
-        grbl_out_str = ""
-        logging.debug("will read Line")
-        grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-        logging.debug("Line read")
-        while grbl_out.decode('utf-8').strip() != 'ok' and starttime+timeout > time.time():
-            gotMsg = True
-            grbl_out_str += str(grbl_out.decode('utf-8').strip())
+        try:
+            #print("serial is open")
+            gotMsg = False
+            l = message.strip() # Strip all EOL characters for consistency
+            l = l.encode('utf-8')
+            #print('Sending: <' + str(l) + '>' )
+            l = l + '\r\n'.encode('utf-8')
+            global serialPort
+            #print("flushing ")
+            serialPort.flushInput()  # Flush old unreceived responses
+            #print("writing " + str(l))
+            serialPort.write((l)) # Send g-code block to grbl
+            #loop until ok
+            grbl_out_str = ""
+            logging.debug("will read Line")
             grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-            logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
-        if not (gotMsg):
-            grbl_out_str = " "
-        logging.debug(' : ' + grbl_out_str)
-        return grbl_out_str
+            #print("grbl_out " + str(grbl_out))
+            logging.debug("Line read")
+            while grbl_out.decode('utf-8').strip() != 'ok' and starttime+timeout > time.time():
+                gotMsg = True
+                grbl_out_str += str(grbl_out.decode('utf-8').strip())
+                grbl_out = serialPort.readline() # Wait for grbl response with carriage return
+                logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
+            if not (gotMsg):
+                grbl_out_str = " "
+            logging.debug(' : ' + grbl_out_str)
+            return grbl_out_str
+        except Exception as e3:
+            logging.error(e3)
+            return False
     else:
         logging.debug("Not Sent - Port Is NOT open")
         return "Not Sent - Port Is NOT open"    
@@ -153,6 +164,10 @@ def get3dPos():
     if gcodeFlavor == 'G':
         result = gCodeGrbl.get3dPos()
     return result
+
+def runCmd(cmd):
+    print(" in serialFunctions.runCmd")
+    return stripPos(WriteToSerial(cmd))
 
 
 def jog(code,isShift):
