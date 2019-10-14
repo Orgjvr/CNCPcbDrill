@@ -12,6 +12,7 @@ def Wakeup():
     time.sleep(2)   # Wait for grbl to initialize 
     serialFunctions.flushInput()
     
+
 def getStatus():
     status = serialFunctions.WriteToSerial("?")
     if status[0] == "<":
@@ -31,8 +32,10 @@ def get3dPos():
     jstatus = json.loads(status)
     print("MPos=<"+jstatus['MPos']+">")
     pos =  jstatus['MPos'].split(",")
+    gStatus = '"grblState":"' + jstatus['state'] + '", '
     xyzpos = '"X":'+pos[0]+","+'"Y":'+pos[1]+","+'"Z":'+pos[2]
     print("xyz=<"+xyzpos+">")
-    pos = "{"+xyzpos+"}"
+    pos = "{" + gStatus + xyzpos+"}"
+    print("Returning " + pos)
     return pos
     

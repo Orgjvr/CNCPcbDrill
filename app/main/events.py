@@ -14,6 +14,13 @@ def get3dPos(message):
     return pos
 
 
+@socketio.on('jog', namespace='/sock')
+def jog(code, isShift):
+    print("jogging, code =" + code + "shift = " + str(isShift))
+    success = serialFunctions.jog(code,isShift)
+    return success
+
+
 @socketio.on('openSerial', namespace='/sock')
 def openSerial(portName,baud):
     """Open serial port to machine returning message to browser"""

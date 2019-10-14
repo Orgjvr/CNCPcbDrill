@@ -18,7 +18,7 @@ job = Job.Job()
 
 ALLOWED_EXTENSIONS = set(['drl', 'txt', 'xln'])
 
-#@main.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET', 'POST'])
 @main.route('/open_file', methods=['GET', 'POST'])
 def upload_file():
     #logging.basicConfig(level=logging.DEBUG)

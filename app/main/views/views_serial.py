@@ -39,6 +39,20 @@ def get3dPos():
     pos = serialFunctions.get3dPos()
     return Response(str(pos))
 
+@main.route('/moveLeft/<dist>')
+def moveLeft(dist):
+    return Response(stripPos(serialFunctions.WriteToSerial("$J=G91 X-%3.3f F500"% (float(dist)))))
+
+@main.route('/moveRight/<dist>')
+def moveRight(dist):
+    return Response(stripPos(serialFunctions.WriteToSerial("$J=G91 X%3.3f F500"% (float(dist)))))
+
+def stripPos(pos):
+    if pos[0] == "<":
+        pos=pos[1:]
+    if pos[-1] == ">":
+        pos=pos[:-1]
+    return str(pos)
 
 @main.route('/moveXY10')
 def moveXY10():

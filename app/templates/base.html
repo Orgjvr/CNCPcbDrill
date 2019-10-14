@@ -7,6 +7,9 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript" charset="utf-8">
     var socket;
+    var GrblState = "IDLE";  // Idle / Running
+    
+
     $(document).ready(function(){
         socket = io.connect('http://' + document.domain + ':' + location.port + '/sock');
         socket.on('connect', function() {
@@ -16,18 +19,63 @@
             getBaudrates();
             getCameras();
             setInterval(mustPollPosition, 500);
+            registerKeyDown();
         });
         socket.on('position', function(data) {
-            console.log('Data='+data);
-            document.getElementById("xpos").innerHTML = JSON.parse(data).X;
-            document.getElementById("ypos").innerHTML = JSON.parse(data).Y;
-            document.getElementById("zpos").innerHTML = JSON.parse(data).Z;
+            //console.log('Data='+data);
+            //console.log('grblState =' + JSON.parse(data).grblState);
+
+            switch(JSON.parse(data).grblState){
+              case "Idle":
+                GrblState = "IDLE";
+                break;
+              case "Run":
+                GrblState = "RUNNING";
+                break;
+              case "Jog":
+                GrblState = "JOG";
+            }
+            //console.log(GrblState);
+            document.getElementById("xpos").innerHTML = JSON.parse(data).X.toFixed(3);
+            document.getElementById("ypos").innerHTML = JSON.parse(data).Y.toFixed(3);
+            document.getElementById("zpos").innerHTML = JSON.parse(data).Z.toFixed(3);
         });
     });
+
+    function registerKeyDown(){
+      document.addEventListener('keydown', jog);
+      console.log("registered key Down")
+    }
+
+
+    function jog(e) {
+
+      var checkBox = document.getElementById("canJog");
+      if(checkBox.checked){
+        //log.innerHTML = `Shift: ${e.shiftKey} </br> Alt: ${e.altKey} </br> code : ${e.code}`;
+
+        // filter out non arrow keys
+        switch(e.code){
+          case "ArrowLeft":
+          case "ArrowRight":
+          case "ArrowUp":
+          case "ArrowDown":
+            // activate getPos
+            GrblState = "JOG";
+            socket.emit('jog', e.code, e.shiftKey, function(data){
+              //console.log('jog returned!');
+              //console.log(data);
+            });
+            break;
+        }
+        return false;
+      }
+    }
+
     function update_pos() {
         socket.emit('get3dPos', {}, function(data) {
-            console.log('get3dPos returned!');
-            console.log(data);
+            //console.log('get3dPos returned!');
+            //console.log(data);
         });
     }
     
@@ -45,6 +93,7 @@
                     console.log("Change button to disconnect");
                     document.getElementById("btnDisconnect").style.display = "inline";
                     document.getElementById("btnConnect").style.display = "none";
+                    update_pos();
                 }
             });
           }
@@ -91,11 +140,16 @@
     }
 
     function mustPollPosition() {
-      console.log('check mustPollPosition');
-      var checkBox = document.getElementById("mustPoll");
-      if (checkBox.checked == true){
+      //console.log('check mustPollPosition');
+      var checkBox = document.getElementById("canJog");
+      //console.log("mustPoll = " + checkBox.checked + " Grblstate = " + GrblState)
+      if (checkBox.checked == true && GrblState != "IDLE"){
           update_pos();
       }
+    }
+
+    function emitHello(){
+
     }
   
     function getCameras() {
@@ -198,12 +252,14 @@
       <select id="cmbBaud" > </select>
       <button id="btnConnect" onclick="connect_serial()">Connect</button>
       <button id="btnDisconnect" onclick="disconnect_serial()" style="display:none;">Disconnect</button>
-      Enable Position updates: <input type="checkbox" id="mustPoll">
+      Enable Jog: <input type="checkbox" id="canJog">
       <button onclick="getCameras()">Refresh Cameras</button>
       <select id="cmbCameras" > </select>
       <button id="btnCamOn" onclick="enable_cam()" style="display:none;">Enable Camera</button>
       <button id="btnCamOff" onclick="disable_cam()">Disable Camera</button>
       <button onclick="update_pos()">Update Position</button>
+      <button onclick="emitHello()">To Server</button>
+
       <HR>
         {% block content %} {% endblock %}
   </body>

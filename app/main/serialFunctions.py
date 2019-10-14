@@ -155,6 +155,37 @@ def get3dPos():
     return result
 
 
+def jog(code,isShift):
+    print("in jog")
+    if code == 'ArrowLeft':
+        if isShift:
+            return stripPos(WriteToSerial("$J=G91 X-1 F500"))
+        else:
+            return stripPos(WriteToSerial("$J=G91 X-10 F500"))
+    if code == 'ArrowRight':
+        if isShift:
+            return stripPos(WriteToSerial("$J=G91 X1 F500"))
+        else:
+            return stripPos(WriteToSerial("$J=G91 X10 F500"))
+    if code == 'ArrowUp':
+        if isShift:
+            return stripPos(WriteToSerial("$J=G91 Y1 F500"))
+        else:
+            return stripPos(WriteToSerial("$J=G91 Y10 F500"))
+    if code == 'ArrowDown':
+        if isShift:
+            return stripPos(WriteToSerial("$J=G91 Y-1 F500"))
+        else:
+            return stripPos(WriteToSerial("$J=G91 Y-10 F500"))
+
+def stripPos(pos):
+    if pos[0] == "<":
+        pos=pos[1:]
+    if pos[-1] == ">":
+        pos=pos[:-1]
+    return str(pos)
+
+
 
 global serialPort
 global sPorts
