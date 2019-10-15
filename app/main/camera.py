@@ -15,9 +15,11 @@ class VideoCamera(object):
     
     def __del__(self):
         try:
+            print("__del__ cam")
             self.video.release()
         except:
-             a=0
+            print("error __del__ cam")
+            pass
     
     def get_frame(self):
         success, image = self.video.read()

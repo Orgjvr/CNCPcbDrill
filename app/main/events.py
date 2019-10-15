@@ -3,6 +3,7 @@ from flask_socketio import emit, join_room, leave_room
 from .. import socketio
 from . import serialFunctions 
 from . import cameraFunctions 
+from .views import views_camera
 import json
 
 @socketio.on('get3dPos', namespace='/sock')
@@ -70,4 +71,22 @@ def getCameras():
     #return json.dumps(result)
     return result
 
+
+@socketio.on('closeCamera', namespace='/sock')
+def closeCamera():
+    """Close the last used Camera returning message to browser"""
+    result = views_camera.closeLastCam()
+    #print("result="+str(result))
+    #return json.dumps(result)
+    return result
+
+
+@socketio.on('openCamera', namespace='/sock')
+def openCamera(index):
+    """Close the last used Camera returning message to browser"""
+    print("Opening Cam")
+    result = views_camera.activateCam(index)
+    #print("result="+str(result))
+    #return json.dumps(result)
+    return "Done"#result
 
