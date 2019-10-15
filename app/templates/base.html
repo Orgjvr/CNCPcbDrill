@@ -160,7 +160,10 @@
   
     function getCameras() {
       console.log('getCameras called');
-      disable_cam();
+      var elem = document.getElementById("camfeed");
+      if (elem != null) {
+          disable_cam();
+      }
       socket.emit('getCameras', function(data) {
           console.log('getCameras:');
           console.log('Data='+data);
@@ -183,9 +186,22 @@
       var newElement = document.createElement('img');
       newElement.setAttribute('id', 'camfeed');
       newElement.setAttribute('src', "{{ url_for('main.video_feed') }}");
+      newElement.setAttribute('width', "320");
+      newElement.setAttribute('height', "240");
       p.appendChild(newElement);  
       document.getElementById("btnCamOff").style.display = "inline";
       document.getElementById("btnCamOn").style.display = "none";
+      var dropdown = document.getElementById("cmbCameras");
+      var selectedCam = dropdown.options[dropdown.selectedIndex].value;
+      if ( dropdown.selectedIndex != 0 ) {
+            socket.emit('openCamera', selectedCam, function(data) {
+                console.log('Camera opened:');
+                console.log(data);
+                if (data == true) {
+                    console.log("Change button to disconnect");
+                }
+            });
+          }
     }
     
     function disable_cam() {
@@ -196,6 +212,10 @@
       }
       document.getElementById("btnCamOn").style.display = "inline";
       document.getElementById("btnCamOff").style.display = "none";
+      socket.emit('closeCamera', function(data) {
+          console.log('closeCamera:');
+          console.log('Data='+data);
+      });
     }
 
 
@@ -290,8 +310,8 @@
       <label for="canJog" style="font:small-caption">Allow Jog:</label><input type="checkbox" id="canJog">
       <button onclick="getCameras()">Refresh Cameras</button>
       <select id="cmbCameras" > </select>
-      <button id="btnCamOn" onclick="enable_cam()" style="display:none;">Enable Camera</button>
-      <button id="btnCamOff" onclick="disable_cam()">Disable Camera</button>
+      <button id="btnCamOn" onclick="enable_cam()">Enable Camera</button>
+      <button id="btnCamOff" onclick="disable_cam()" style="display:none;">Disable Camera</button>
       <button onclick="update_pos()">Update Position</button>
       <button onclick="emitHello()">To Server</button>
 

@@ -22,8 +22,8 @@ def get_cameras():
             pass
         try:
             logging.debug("Try to read camera no <" + str(index) + ">")
-            cap = cv2.VideoCapture(index)
             if not cap.read()[0]:
+            cap = cv2.VideoCapture(index)
                 logging.debug("Cannot read camera no <" + str(index) + ">")
                 #break
             else:
@@ -41,4 +41,5 @@ def get_cameras():
     print("Returning cams " + json.dumps(arr))
     return arr
     #return json.dumps(arr)
+
 

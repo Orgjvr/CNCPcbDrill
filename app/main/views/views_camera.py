@@ -13,7 +13,9 @@ from flask import current_app as app
 
 @main.route('/c/<cam_num>')
 def activateCam(cam_num):
-    
+    global showCam
+    showCam=True
+    print("Activating Cam: "+cam_num)
     global camIndex
     camIndex = int(cam_num)
     return Response(gen(VideoCamera(camIndex)),
@@ -21,21 +23,40 @@ def activateCam(cam_num):
 
     #return "Camera %d activated"% (camIndex)
 
+
+@main.route('/cs/<cam_num>')
+def stopCam(cam_num):
+    global showCam
+    showCam=False
+    print("Closing cam")
+    global camIndex
+    camIndex = int(cam_num)
+    VideoCamera(camIndex).__del__
+    return "Cam Closed"
+
+
+@main.route('/close_last_cam')
+def closeLastCam():
+    global showCam
+    showCam=False
+    global camIndex
+    print("Closing cam")
+    #camIndex = int(cam_num)
+    VideoCamera(camIndex).__del__
+    return "Cam Closed"
+
+
 @main.route('/get_cameras')
 def get_cameras():
     print("in view for get_cameras")
+    closeLastCam()
     cams = cameraFunctions.get_cameras()
-    #result = "{"
-    #for c in cams:
-
-    #return Response(cameraFunctions.get_cameras())
     return Response(json.dumps(cams))
 
 
 def gen(camera):
     camera.__del__ #  .release()
-    
-    while True:
+    while showCam:
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -51,3 +72,6 @@ def video_feed():
     #return Response(gen(VideoCamera(0)),
     return Response(gen(VideoCamera(camIndex)),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+global showCam
+showCam=True
