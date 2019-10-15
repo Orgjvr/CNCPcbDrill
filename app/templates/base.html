@@ -59,7 +59,7 @@
 
     function jog(e) {
 
-      var checkBox = document.getElementById("canJog");
+      var checkBox = document.getElementById("chkCanJog");
       if(checkBox.checked){
         //log.innerHTML = `Shift: ${e.shiftKey} </br> Alt: ${e.altKey} </br> code : ${e.code}`;
 
@@ -88,6 +88,7 @@
         });
     }
     
+
     function connect_serial() {
         var dropdown = document.getElementById("cmbComPort");
         var selectedPort = dropdown.options[dropdown.selectedIndex].value;
@@ -102,12 +103,35 @@
                     console.log("Change button to disconnect");
                     document.getElementById("btnDisconnect").style.display = "inline";
                     document.getElementById("btnConnect").style.display = "none";
+                    //console.log("enable canJog");
+                    //document.getElementById("canJog").disabled = false;
+                    document.getElementById("cmbComPort").disabled=true;
+                    document.getElementById("cmbBaud").disabled=true;
+                    document.getElementById("btnCanJog").disabled=false;
                     update_pos();
                 }
             });
           }
         }
-        
+
+    function toggleCanJog(setter){
+      console.log("in toggle")
+      // only toggle on if serial Connected 
+      btn = document.getElementById("btnCanJog");
+      chk = document.getElementById("chkCanJog");
+      
+      if(btn.innerText == "Jogging Off" ){
+        // enable
+        btn.style.backgroundColor = "lightgreen";
+        btn.innerText="Jogging On"
+        chk.checked=true;
+      } else {
+        btn.style.backgroundColor = "lightgray";
+        btn.innerText = "Jogging Off"
+        chk.checked=false;
+      }
+    }
+
     function disconnect_serial() {
         socket.emit('closeSerial', function(data) {
             console.log('Serial status:');
@@ -116,6 +140,11 @@
                 console.log("Change button to disconnect");
                 document.getElementById("btnConnect").style.display = "inline";
                 document.getElementById("btnDisconnect").style.display = "none";
+                //console.log("disable canJog");
+                toggleCanJog(0)
+                document.getElementById("canJog").disabled = true;
+                document.getElementById("cmbComPort").disabled=false;
+                document.getElementById("cmbBaud").disabled=false;
             }
         });
     }
@@ -150,7 +179,7 @@
 
     function mustPollPosition() {
       //console.log('check mustPollPosition');
-      var checkBox = document.getElementById("canJog");
+      var checkBox = document.getElementById("chkCanJog");
       //console.log("mustPoll = " + checkBox.checked + " Grblstate = " + GrblState)
       if ((checkBox.checked == true && GrblState == "JOG") || GrblState == "RUN" ){
           //console.log("moving getting pos")
@@ -307,13 +336,12 @@
       <select id="cmbBaud" > </select>
       <button id="btnConnect" onclick="connect_serial()">Connect</button>
       <button id="btnDisconnect" onclick="disconnect_serial()" style="display:none;">Disconnect</button>
-      <label for="canJog" style="font:small-caption">Allow Jog:</label><input type="checkbox" id="canJog">
+      <button id="btnCanJog" onclick="toggleCanJog()" style="background-color: lightgray;" disabled>Jogging Off</button>
+      <input type="checkbox" id="chkCanJog" style="visibility: hidden;">
       <button onclick="getCameras()">Refresh Cameras</button>
       <select id="cmbCameras" > </select>
       <button id="btnCamOn" onclick="enable_cam()">Enable Camera</button>
       <button id="btnCamOff" onclick="disable_cam()" style="display:none;">Disable Camera</button>
-      <button onclick="update_pos()">Update Position</button>
-      <button onclick="emitHello()">To Server</button>
 
       <HR>
         {% block content %} {% endblock %}
