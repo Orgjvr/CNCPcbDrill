@@ -23,7 +23,7 @@ def get_cameras():
         try:
             logging.debug("Try to read camera no <" + str(index) + ">")
             if not cap.read()[0]:
-            cap = cv2.VideoCapture(index)
+                cap = cv2.VideoCapture(index)
                 logging.debug("Cannot read camera no <" + str(index) + ">")
                 #break
             else:
