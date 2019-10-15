@@ -17,6 +17,7 @@
 <script type="text/javascript" charset="utf-8">
     var socket;
     var GrblState = "IDLE";  // Idle / Running
+    var moveStateFine = false;
     
 
     $(document).ready(function(){
@@ -59,8 +60,24 @@
 
     function jog(e) {
 
+
+      //console.log("in jog")
       var checkBox = document.getElementById("chkCanJog");
       if(checkBox.checked){
+        //console.log("checked");
+        // have we hit the Space Bar ?
+        if(e.code == "Space"){
+          if(moveStateFine){
+            moveStateFine = false;
+            lbl = "Coarse";
+          } else {
+            moveStateFine = true; 
+            lbl = "Fine";
+          }
+          document.getElementById("moveState").innerHTML = lbl;
+          
+        }
+        //console.log("moveStateCoarse = " + moveStateCoarse);
         //log.innerHTML = `Shift: ${e.shiftKey} </br> Alt: ${e.altKey} </br> code : ${e.code}`;
 
         // filter out non arrow keys
@@ -71,7 +88,8 @@
           case "ArrowDown":
             // activate getPos
             GrblState = "JOG";
-            socket.emit('jog', e.code, e.shiftKey, function(data){
+            //console.log("jogging code " + e.code + " shift " + e.shiftKey + " state " + moveStateFine);
+            socket.emit('jog', e.code, e.shiftKey, moveStateFine, function(data){
               //console.log('jog returned!');
               //console.log(data);
             });

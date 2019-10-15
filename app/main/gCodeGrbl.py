@@ -39,3 +39,34 @@ def get3dPos():
     print("Returning " + pos)
     return pos
     
+
+def jog(code, isShift, isFine, cncMove):
+    print(cncMove)
+    moves = dict(cncMove)
+    coarse = moves["coarse"]
+    normal = moves["normal"]
+    fine = moves["fine"]
+
+    if (isFine and isShift):
+        val = fine   # fine
+    if( isFine and not isShift) or (not isFine and isShift):
+        val = normal  # normal
+    if( not isFine and not isShift):
+        val = coarse   #coarse
+
+
+    if code == 'ArrowLeft':
+            return stripPos(serialFunctions.WriteToSerial("$J=G91 X-%2.2f F500"% (val)))
+    if code == 'ArrowRight':
+            return stripPos(serialFunctions.WriteToSerial("$J=G91 X%2.2f F500"% (val)))
+    if code == 'ArrowUp':
+            return stripPos(serialFunctions.WriteToSerial("$J=G91 Y%2.2f F500"% (val)))
+    if code == 'ArrowDown':
+            return stripPos(serialFunctions.WriteToSerial("$J=G91 Y-%2.2f F500"% (val)))
+
+def stripPos(pos):
+    if pos[0] == "<":
+        pos=pos[1:]
+    if pos[-1] == ">":
+        pos=pos[:-1]
+    return str(pos)

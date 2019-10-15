@@ -67,21 +67,8 @@ def moveXY10():
 
 @main.route('/open_port/<portName>/<baud>')
 def open_port(portName,baud):
-    #global serialPort
-    #serialPort = serial_rx_tx.SerialPort()
     portName = portName.replace("~","/")
     serialFunctions.openSerialPort(portName,baud)
-    #print('in Open_Port  Name: %s and baud rate %s'% (portName, baud))
-    #serialPort.Open(portName,baud)
-    #print("Port opened")
-    #serialPort.RegisterReceiveCallback(serialFunctions.OnReceiveSerialData)
-    #print("Callback registered")
-    #time.sleep(10)
-    #serialPort.Send("?")
-    #serialPort.Send("$J=G91 X10 Y10 F300")
-    #serialPort.Send("?")
-
-    #get_coms()
     return "nothing"
 
 
@@ -94,15 +81,7 @@ def close_port():
 
 @main.route('/get_coms')
 def get_coms():
-    #global serialPort
-    #serialPort = serial_rx_tx.SerialPort()
-    #serialFunctions.serialPort.Send("?")
-    #serialFunctions.serialPort.Send("$J=G91 X10 Y10 F300")
     serialFunctions.WriteToSerial("$")
     serialFunctions.WriteToSerial("?")
 
     return "nothing"
-
-def OnReceiveSerialData(message):
-    str_message = message.decode("utf-8")
-    print("fokop:%s"%(str_message))

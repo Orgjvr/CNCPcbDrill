@@ -51,6 +51,8 @@ def openSerialPort(portName,baud):
     global serialPort
     global serialIsOpen
     global gcodeFlavor
+    global cncMove
+    cncMove = app.config.get("CNC_MOVE")
     gcodeFlavor = app.config.get('GCODE_FLAVOUR')
     if serialIsOpen:
         closeSerialPort()
@@ -76,7 +78,7 @@ def WriteToSerial(message, timeout=10): #This will return the value which was re
     #TODO: implement a timeout waiting for ok response
     #timeout = 10 #Max time in seconds to wait for result on serial port
     #print("in Write to Serial")
-    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.DEBUG)
     starttime=time.time()
     logging.debug("Trying to send:<%s>"%(message))
     #print("Trying to send:<%s>"%(message))
@@ -170,35 +172,13 @@ def runCmd(cmd):
     return stripPos(WriteToSerial(cmd))
 
 
-def jog(code,isShift):
-    print("in jog")
-    if code == 'ArrowLeft':
-        if isShift:
-            return stripPos(WriteToSerial("$J=G91 X-1 F500"))
-        else:
-            return stripPos(WriteToSerial("$J=G91 X-10 F500"))
-    if code == 'ArrowRight':
-        if isShift:
-            return stripPos(WriteToSerial("$J=G91 X1 F500"))
-        else:
-            return stripPos(WriteToSerial("$J=G91 X10 F500"))
-    if code == 'ArrowUp':
-        if isShift:
-            return stripPos(WriteToSerial("$J=G91 Y1 F500"))
-        else:
-            return stripPos(WriteToSerial("$J=G91 Y10 F500"))
-    if code == 'ArrowDown':
-        if isShift:
-            return stripPos(WriteToSerial("$J=G91 Y-1 F500"))
-        else:
-            return stripPos(WriteToSerial("$J=G91 Y-10 F500"))
-
-def stripPos(pos):
-    if pos[0] == "<":
-        pos=pos[1:]
-    if pos[-1] == ">":
-        pos=pos[:-1]
-    return str(pos)
+def jog(code,isShift,isFine):
+    #print("in jog")
+    global cncMove
+    if(gcodeFlavor == "G"):
+        gCodeGrbl.jog(code, isShift, isFine, cncMove)
+    else:
+        print("Error Gcode Flavour value is not valid")
 
 
 
@@ -209,7 +189,7 @@ global gcodeFlavor
 
 serialIsOpen = False
 sPorts = GetSerialPorts()
-logging.debug("printSerialPorts")
-logging.debug(printSerialPorts())
+#logging.debug("printSerialPorts")
+#logging.debug(printSerialPorts())
 
 

@@ -24,9 +24,9 @@ def runCmd(cmdText):
     return success
 
 @socketio.on('jog', namespace='/sock')
-def jog(code, isShift):
+def jog(code, isShift, isFine):
     print("jogging, code =" + code + "shift = " + str(isShift))
-    success = serialFunctions.jog(code,isShift)
+    success = serialFunctions.jog(code,isShift,isFine)
     return success
 
 
