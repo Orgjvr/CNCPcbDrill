@@ -3,7 +3,8 @@ from .. import main
 #from .forms import LoginForm
 import cv2
 from .. import cameraFunctions
-from ..camera import VideoCamera
+#from ..camera import VideoCamera
+from ..camera import Camera
 import json
 import logging
 from flask import current_app as app
@@ -13,14 +14,14 @@ from flask import current_app as app
 
 @main.route('/c/<cam_num>')
 def activateCam(cam_num):
+    print("First close Cam ")
+    closeLastCam()
     global showCam
     showCam=True
-    print("Activating Cam: "+cam_num)
     global camIndex
     camIndex = int(cam_num)
-    return Response(gen(VideoCamera(camIndex)),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
+    print("Activating Cam: "+cam_num)
+    return Response(gen(VideoCamera(camIndex)), mimetype='multipart/x-mixed-replace; boundary=frame')
     #return "Camera %d activated"% (camIndex)
 
 
@@ -31,7 +32,7 @@ def stopCam(cam_num):
     print("Closing cam")
     global camIndex
     camIndex = int(cam_num)
-    VideoCamera(camIndex).__del__
+    VideoCamera(camIndex).__del__()
     return "Cam Closed"
 
 
@@ -55,23 +56,43 @@ def get_cameras():
 
 
 def gen(camera):
-    camera.__del__ #  .release()
+    print("in camera gen")
+    #camera.__del__() #  .release()
+    #camera.__init__(camera)
     while showCam:
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
-@main.route('/video_feed')
-def video_feed():
-    global camIndex
-    camIndex = int(app.config.get('CAMERA_INDEX'))
-    #print('getting video feed')
-    #if oldIndex != camIndex:
-    #    mustCaptureVideo = False
-    #    oldIndex=camIndex
-    #return Response(gen(VideoCamera(0)),
-    return Response(gen(VideoCamera(camIndex)),
+#@main.route('/video_feed')
+#def video_feed():
+#    global camIndex
+    #camIndex = int(app.config.get('CAMERA_INDEX'))
+    
+
+
+
+@main.route('/video_feed2')
+def video_feed2():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(cameraFunctions.gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@main.route('/vf2/<cam_num>')
+def vf2(cam_num):
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    Camera.set_video_source(int(cam_num))
+    return Response(cameraFunctions.gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@main.route('/vf2s')
+def vf2s():
+    """Stop the Video streaming feed."""
+    Camera.stop()
+    return "Stopped"
 
 global showCam
 showCam=True
+global camIndex
+camIndex = 0
+#camIndex = int(app.config.get('CAMERA_INDEX'))

@@ -84,7 +84,7 @@ def closeCamera():
 @socketio.on('openCamera', namespace='/sock')
 def openCamera(index):
     """Close the last used Camera returning message to browser"""
-    print("Opening Cam")
+    print("Opening Cam no:"+str(index))
     result = views_camera.activateCam(index)
     #print("result="+str(result))
     #return json.dumps(result)

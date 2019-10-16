@@ -6,7 +6,7 @@ main = Blueprint('main', __name__)
 from .views import views, views_serial, views_camera, views_file
 
 from . import models, forms, events
-from .camera import VideoCamera
+#from .camera import VideoCamera
 
 from . import serialFunctions
 from . import cameraFunctions
