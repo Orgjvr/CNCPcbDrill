@@ -6,6 +6,7 @@ import cv2
 import json
 import logging
 from flask import current_app as app
+from .camera import Camera
 
 
 def get_cameras():
@@ -39,25 +40,18 @@ def get_cameras():
     #return json.dumps(arr)
 
 
-def OpenCamera(index):
-    video = cv2.VideoCapture(index)
-    video.set(3,320)
-    video.set(4,240)
-    return video
+def OpenCamera(cam_num):
+    Camera.set_video_source(int(cam_num))
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-def CloseCameraByIndex(index):
-    try:
-        video = cv2.VideoCapture(index)
-        video.release()
-        result = True
-    except:
-        result = False
-    return result
+
+def CloseCamera():
+    Camera.stop()
+    return "Camera stopped"
 
 
-def CloseCameraByHandle(video):
-    video.release()
 
 
 def getVideoFrame(video):

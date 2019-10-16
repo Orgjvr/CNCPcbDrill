@@ -72,8 +72,8 @@ def gen(camera):
 
 
 
-@main.route('/video_feed2')
-def video_feed2():
+@main.route('/video_feed')
+def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(cameraFunctions.gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
