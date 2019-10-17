@@ -133,20 +133,31 @@
         }
 
     function toggleCanJog(setter){
-      console.log("in toggle")
-      // only toggle on if serial Connected 
+      console.log("in toggle");
+      btn = document.getElementById("btnCanJog");
+      if(btn.innerText == "Jogging Off" ){
+        enableJog();
+      } else {
+        disableJog();
+      }
+    }
+
+    function disableJog(){
       btn = document.getElementById("btnCanJog");
       chk = document.getElementById("chkCanJog");
-      
-      if(btn.innerText == "Jogging Off" ){
-        // enable
+      btn.style.backgroundColor = "lightgray";
+      btn.innerText = "Jogging Off";
+      chk.checked=false;
+    }
+
+    function enableJog(){
+      // only toggle on if serial Connected 
+      if (document.getElementById("btnConnect").style.display == "none") {
+        btn = document.getElementById("btnCanJog");
+        chk = document.getElementById("chkCanJog");
         btn.style.backgroundColor = "lightgreen";
-        btn.innerText="Jogging On"
+        btn.innerText="Jogging On";
         chk.checked=true;
-      } else {
-        btn.style.backgroundColor = "lightgray";
-        btn.innerText = "Jogging Off"
-        chk.checked=false;
       }
     }
 
@@ -158,11 +169,15 @@
                 console.log("Change button to disconnect");
                 document.getElementById("btnConnect").style.display = "inline";
                 document.getElementById("btnDisconnect").style.display = "none";
-                //console.log("disable canJog");
-                toggleCanJog(0)
-                document.getElementById("canJog").disabled = true;
                 document.getElementById("cmbComPort").disabled=false;
                 document.getElementById("cmbBaud").disabled=false;
+                //console.log("disable canJog");
+                //document.getElementById("canJog").disabled = true;
+                //toggleCanJog(0) //wrong... This toggle the jog on or off, not the button
+                btn = document.getElementById("btnCanJog");
+                btn.innerText = "Jogging Off" //force to known state
+                disableJog();
+
             }
         });
     }
