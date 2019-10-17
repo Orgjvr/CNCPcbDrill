@@ -65,10 +65,7 @@ def getCameras():
     result = []
     for c in cams:
         result += str(c)
-
-    #result = result[:-1]+"}'"
     print("result="+str(result))
-    #return json.dumps(result)
     return result
 
 
@@ -76,8 +73,6 @@ def getCameras():
 def closeCamera():
     """Close the last used Camera returning message to browser"""
     result = cameraFunctions.CloseCamera()
-    #print("result="+str(result))
-    #return json.dumps(result)
     return result
 
 
@@ -86,8 +81,5 @@ def openCamera(index):
     """Close the last used Camera returning message to browser"""
     print("Opening Cam no:"+str(index))
     result = cameraFunctions.OpenCamera(index)
-    #result = views_camera.activateCam(index)
-    #print("result="+str(result))
-    #return json.dumps(result)
     return result
 

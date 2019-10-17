@@ -12,6 +12,11 @@ from flask import current_app as app
 #TODO: add send of json camera list from GetCameras
 #TODO: add dynamic route to activate camera /c/2 
 
+
+
+
+
+
 @main.route('/c/<cam_num>')
 def activateCam(cam_num):
     print("First close Cam ")
@@ -23,6 +28,14 @@ def activateCam(cam_num):
     print("Activating Cam: "+cam_num)
     return Response(gen(VideoCamera(camIndex)), mimetype='multipart/x-mixed-replace; boundary=frame')
     #return "Camera %d activated"% (camIndex)
+
+
+@main.route('/get_cameras')
+def get_cameras():
+    print("in view for get_cameras")
+    closeLastCam()
+    cams = cameraFunctions.get_cameras()
+    return Response(json.dumps(cams))
 
 
 @main.route('/cs/<cam_num>')
@@ -46,13 +59,6 @@ def closeLastCam():
     VideoCamera(camIndex).__del__
     return "Cam Closed"
 
-
-@main.route('/get_cameras')
-def get_cameras():
-    print("in view for get_cameras")
-    closeLastCam()
-    cams = cameraFunctions.get_cameras()
-    return Response(json.dumps(cams))
 
 
 def gen(camera):

@@ -173,13 +173,7 @@
                 document.getElementById("btnDisconnect").style.display = "none";
                 document.getElementById("cmbComPort").disabled=false;
                 document.getElementById("cmbBaud").disabled=false;
-                //console.log("disable canJog");
-                //document.getElementById("canJog").disabled = true;
-                //toggleCanJog(0) //wrong... This toggle the jog on or off, not the button
-                btn = document.getElementById("btnCanJog");
-                btn.innerText = "Jogging Off" //force to known state
                 disableJog();
-
             }
         });
     }

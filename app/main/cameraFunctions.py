@@ -54,21 +54,21 @@ def CloseCamera():
 
 
 
-def getVideoFrame(video):
-    print("camera getting frame")
-    success, image = video.read()
-    width = int(video.get(3))
-    height = int(video.get(4))
+# def getVideoFrame(video):
+#     print("camera getting frame")
+#     success, image = video.read()
+#     width = int(video.get(3))
+#     height = int(video.get(4))
 
-    w2 = int(width/2)
-    h2 = int(height/2)
+#     w2 = int(width/2)
+#     h2 = int(height/2)
 
-    image = cv2.line(image, (w2,0), (w2,height), (0,255,255), 1)
-    image = cv2.line(image, (0, h2), (width, h2), (0,255,255), 1)
+#     image = cv2.line(image, (w2,0), (w2,height), (0,255,255), 1)
+#     image = cv2.line(image, (0, h2), (width, h2), (0,255,255), 1)
     
-    ret, jpeg = cv2.imencode('.jpg', image)
+#     ret, jpeg = cv2.imencode('.jpg', image)
 
-    return jpeg.tobytes()
+#     return jpeg.tobytes()
 
 
 
