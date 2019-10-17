@@ -9,25 +9,7 @@ import json
 import logging
 from flask import current_app as app
 
-#TODO: add send of json camera list from GetCameras
-#TODO: add dynamic route to activate camera /c/2 
 
-
-
-
-
-
-@main.route('/c/<cam_num>')
-def activateCam(cam_num):
-    print("First close Cam ")
-    closeLastCam()
-    global showCam
-    showCam=True
-    global camIndex
-    camIndex = int(cam_num)
-    print("Activating Cam: "+cam_num)
-    return Response(gen(VideoCamera(camIndex)), mimetype='multipart/x-mixed-replace; boundary=frame')
-    #return "Camera %d activated"% (camIndex)
 
 
 @main.route('/get_cameras')
@@ -36,17 +18,6 @@ def get_cameras():
     closeLastCam()
     cams = cameraFunctions.get_cameras()
     return Response(json.dumps(cams))
-
-
-@main.route('/cs/<cam_num>')
-def stopCam(cam_num):
-    global showCam
-    showCam=False
-    print("Closing cam")
-    global camIndex
-    camIndex = int(cam_num)
-    VideoCamera(camIndex).__del__()
-    return "Cam Closed"
 
 
 @main.route('/close_last_cam')
@@ -58,24 +29,6 @@ def closeLastCam():
     #camIndex = int(cam_num)
     VideoCamera(camIndex).__del__
     return "Cam Closed"
-
-
-
-def gen(camera):
-    print("in camera gen")
-    #camera.__del__() #  .release()
-    #camera.__init__(camera)
-    while showCam:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-#@main.route('/video_feed')
-#def video_feed():
-#    global camIndex
-    #camIndex = int(app.config.get('CAMERA_INDEX'))
-    
-
 
 
 @main.route('/video_feed')
