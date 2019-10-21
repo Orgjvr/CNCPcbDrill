@@ -22,7 +22,7 @@
                         <td style="font:status-bar;text-align: center; ">{{ td }}</td>
                         <td style="font:status-bar;text-align: center;" >{{ toolCollection[td]["size"] }}</td>
                         <td style="font:status-bar;text-align: right;">{{ toolCollection[td]["holeCount"] }}</td>
-                        <td style="background-color:{{ toolCollection[td]['color'] }}">&nbsp; </td>
+                        <td style="background-color: {{ toolCollection[td]['color'] }} ">&nbsp; </td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -71,11 +71,28 @@
                 <th><span style="font:caption;font-size: larger;">Z:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="zpos">000.000</span></td></td>
                 </tr>
                 <tr>
-                <th><span style="font:caption;font-size: larger;">MS:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="moveState">Coarse</span></td></td>
+                    <td colspan=2 style="text-align: center;">
+                        <button id="btnCanJog" onclick="toggleCanJog()" style="background-color: lightgray;" disabled>Serial Needed</button>
+     
+                    </td>
                 </tr>
-            </table>
-            <span style="font:caption; font-style:italic">To Jog, Use Arrow keys</br>Normal move = 10mm<br>Shift move = 1mm<br>Ensure [Allow Jog] is checked!  </span>
-            </td>
+                <tr>
+                <th><span style="font:caption;font-size:medium;">SPACE</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="moveState">Coarse / Fine</span></td></td>
+                </tr>
+                <tr>
+                    <th><span style="font:caption;font-size:medium;">Arrow</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="nrmlMove">10 mm</span></td></td>
+                </tr>
+                <tr>
+                    <th><span style="font:caption;font-size:medium;">Shift</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="fineMove">1 mm</span></td></td>
+                </tr>
+                <tr>
+                    <td colspan=2>
+                        <span style="font:caption;font-size: large;"></span>
+                        <input type="checkbox" id="chkCanJog" style="visibility: hidden;">
+                    </td>
+                </tr>
+                </table>
+               </td>
             <td>
                 <table border="0">
                     <tr>

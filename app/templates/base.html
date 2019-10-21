@@ -63,6 +63,8 @@
 
       //console.log("in jog")
       var checkBox = document.getElementById("chkCanJog");
+      var nrmlMove = "10 mm";
+      var fineMove = "1 mm";
       if(checkBox.checked){
         //console.log("checked");
         // have we hit the Space Bar ?
@@ -70,11 +72,17 @@
           if(moveStateFine){
             moveStateFine = false;
             lbl = "Coarse";
+
           } else {
             moveStateFine = true; 
             lbl = "Fine";
+            nrmlMove = "1 mm";
+            fineMove = "0.1 mm";
           }
           document.getElementById("moveState").innerHTML = lbl;
+          document.getElementById("nrmlMove").innerHTML = nrmlMove;
+          document.getElementById("fineMove").innerHTML = fineMove;
+          
           
         }
         //console.log("moveStateCoarse = " + moveStateCoarse);
@@ -126,6 +134,7 @@
                     document.getElementById("cmbComPort").disabled=true;
                     document.getElementById("cmbBaud").disabled=true;
                     document.getElementById("btnCanJog").disabled=false;
+                    document.getElementById("btnCanJog").innerText="Enable Jogging";
                     update_pos();
                 }
             });
@@ -138,14 +147,14 @@
       btn = document.getElementById("btnCanJog");
       chk = document.getElementById("chkCanJog");
       
-      if(btn.innerText == "Jogging Off" ){
+      if(btn.innerText == "Enable Jogging" ){
         // enable
         btn.style.backgroundColor = "lightgreen";
-        btn.innerText="Jogging On"
+        btn.innerText="Disable Jogging";
         chk.checked=true;
       } else {
         btn.style.backgroundColor = "lightgray";
-        btn.innerText = "Jogging Off"
+        btn.innerText = "Enable Jogging";
         chk.checked=false;
       }
     }
@@ -160,7 +169,8 @@
                 document.getElementById("btnDisconnect").style.display = "none";
                 //console.log("disable canJog");
                 toggleCanJog(0)
-                document.getElementById("canJog").disabled = true;
+                document.getElementById("btnCanJog").disabled = true;
+                document.getElementById("btnCanJog").innerText = "Serial Needed";
                 document.getElementById("cmbComPort").disabled=false;
                 document.getElementById("cmbBaud").disabled=false;
             }
@@ -278,14 +288,19 @@
             //console.log('get3dPos returned!');
             //console.log(data);
         });
+      var ins = true;
+      for (var i = 0; i < ss.childNodes.length(); i++){
+        if(ss.childNodes[i].text == cntnt)
+          ins = false;
+          break;
+      }
+      if(ins){
+        opt.appendChild( document.createTextNode(cntnt) );
+        opt.value = cntnt; 
+        ss.insertBefore(opt,ss.childNodes[0]); 
 
-
-      opt.appendChild( document.createTextNode(cntnt) );
-      opt.value = cntnt; 
-      ss.insertBefore(opt,ss.childNodes[0]); 
-
-      txt.value="";
-
+        txt.value="";
+      }
 
     }
 
@@ -354,8 +369,10 @@
       <select id="cmbBaud" > </select>
       <button id="btnConnect" onclick="connect_serial()">Connect</button>
       <button id="btnDisconnect" onclick="disconnect_serial()" style="display:none;">Disconnect</button>
-      <button id="btnCanJog" onclick="toggleCanJog()" style="background-color: lightgray;" disabled>Jogging Off</button>
+    <!-- - ->
+       <button id="btnCanJog" onclick="toggleCanJog()" style="background-color: lightgray;" disabled>Jogging Off</button>
       <input type="checkbox" id="chkCanJog" style="visibility: hidden;">
+    <!- - -->
       <button onclick="getCameras()">Refresh Cameras</button>
       <select id="cmbCameras" > </select>
       <button id="btnCamOn" onclick="enable_cam()">Enable Camera</button>
