@@ -169,7 +169,7 @@ def get3dPos():
 
 def runCmd(cmd):
     print(" in serialFunctions.runCmd")
-    return stripPos(WriteToSerial(cmd))
+    return stripPos(WriteToSerial(cmd)) 
 
 
 def jog(code,isShift,isFine):

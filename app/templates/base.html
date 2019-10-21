@@ -26,12 +26,15 @@
         socket = io.connect('http://' + document.domain + ':' + location.port + '/sock');
         socket.on('connect', function() {
             socket.emit('joined', {});
-            console.log('Websocket connected!');
+            //console.log('Websocket connected!');
             getSerialPorts();
             getBaudrates();
             getCameras();
+            //console.log('getting moves');
+            getCncMoves();
             setInterval(mustPollPosition, 500);
             registerKeyDown();
+
         });
         socket.on('position', function(data) {
             //console.log('Data='+data);
@@ -65,28 +68,44 @@
 
       //console.log("in jog")
       var checkBox = document.getElementById("chkCanJog");
-      var nrmlMove = "10 mm";
-      var fineMove = "1 mm";
-      if(checkBox.checked){
+      
+
+      //if(checkBox.checked){
+
+
         //console.log("checked");
         // have we hit the Space Bar ?
+
+        spnArrowNormal = document.getElementById('spnArrowNormal');
+        spnArrowFine = document.getElementById('spnArrowFine');
+        spnShiftNormal = document.getElementById('spnShiftNormal');
+        spnShiftFine = document.getElementById('spnShiftFine');
+        spnArrowNormal.style.textAlign = 'right';
+        spnShiftNormal.style.textAlign = 'right';
+        
         if(e.code == "Space"){
           if(moveStateFine){
             moveStateFine = false;
+            
             lbl = "Coarse";
-
+            spnArrowNormal.style.display = 'block';
+            spnArrowFine.style.display = 'none';
+            spnShiftNormal.style.display = 'block';
+            spnShiftFine.style.display = 'none';
           } else {
             moveStateFine = true; 
             lbl = "Fine";
-            nrmlMove = "1 mm";
-            fineMove = "0.1 mm";
+            spnArrowNormal.style.display = 'none';
+            spnArrowFine.style.display = 'block';
+            spnShiftNormal.style.display = 'none';
+            spnShiftFine.style.display = 'block';
           }
           document.getElementById("moveState").innerHTML = lbl;
-          document.getElementById("nrmlMove").innerHTML = nrmlMove;
-          document.getElementById("fineMove").innerHTML = fineMove;
           
           
-        }
+        //}
+
+
         //console.log("moveStateCoarse = " + moveStateCoarse);
         //log.innerHTML = `Shift: ${e.shiftKey} </br> Alt: ${e.altKey} </br> code : ${e.code}`;
 
@@ -179,6 +198,25 @@
         });
     }
         
+    function getCncMoves() {
+      socket.emit('getCncMoves', function(data) {
+        console.log('getCncMove:');
+        console.log('Data=' + data);
+        document.getElementById('spnArrowNormal').innerHTML = data['coarse'] + ' mm';
+        document.getElementById('spnArrowFine').innerHTML = data['normal'] + ' mm';
+        document.getElementById('spnShiftNormal').innerHTML = data['normal'] + ' mm';
+        document.getElementById('spnShiftFine').innerHTML = data['fine'] + ' mm';
+
+        document.getElementById('spnArrowNormal').style.textAlign = 'right';
+        document.getElementById('spnArrowFine').style.textAlign = 'right';
+        document.getElementById('spnShiftNormal').style.textAlign = 'right';
+        document.getElementById('spnShiftFine').style.textAlign = 'right';
+
+
+
+      });
+    }
+    
     function getSerialPorts() {
         socket.emit('getSerialPorts', function(data) {
             console.log('getSerialPorts:');

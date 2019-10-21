@@ -3,6 +3,7 @@ from flask_socketio import emit, join_room, leave_room
 from .. import socketio
 from . import serialFunctions 
 from . import cameraFunctions 
+from . import coreFunctions
 from .views import views_camera
 import json
 
@@ -48,6 +49,11 @@ def closeSerial():
     success = serialFunctions.closeSerialPort()
     return success
 
+@socketio.on('getCncMoves', namespace='/sock')
+def getCncMoves():
+    print('gettting moves from events.py')
+    success = coreFunctions.getCncMoves()
+    return success
 
 @socketio.on('getSerialPorts', namespace='/sock')
 def getSerialPorts():

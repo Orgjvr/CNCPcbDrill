@@ -51,17 +51,12 @@ def upload_file():
                 pass
             file.save(filepath)
             # read file 
-            # Get some more config settings
-            # replaced with Read from Drill File 
-            #intDigits = int(app.config.get('INTEGER_DIGITS_IN_DRILLFILE'))
-            #decDigits = int(app.config.get('DECIMAL_DIGITS_IN_DRILLFILE'))
-            #print("About to process file....")
+         
             
             job.newJob(filepath)
-            #processFile.ReadFile(job)
-            #processFile(filepath)
+          
             return redirect(url_for('main.uploaded_file', filename=filename))
-            #return 'uploads/'+str(filename)
+          
     logging.debug("GETTING")
     return '''
     <!doctype html>
@@ -92,25 +87,12 @@ def create_figure():
         #if(cnt < 260):
             px = h.zeroedAndFlippedPoint[0]
             py = h.zeroedAndFlippedPoint[1] 
-            #axis.plot(px, py, color=colordict[h.toolNum],markersize=toolDict[h.toolNum]*2 ,marker='o')
             logging.info("Plotting hole: "+str(h.holeNumber))
             axis.plot(px, py, color=colordict[h.toolNum],markersize=(h.size)*2 ,marker='o')
-        #    cnt += 1
-        #else:
-        #    break
-    #font = {'family': 'serif', 
-    #        'color':  'darkred',
-    #        'weight': 'normal',
-    #    }
-    #        'size': 16,
-    
-    #axis.set_title("Max Distance : %3.3f "% (maxDistance))
-    # plot max Line
-    #axis.add_line(Line2D (job.h1.zeroedAndFlippedPoint, job.h2.zeroedAndFlippedPoint, linewidth=2, color='blue'))
-    #print(job.h1.zeroedAndFlippedPoint)
-    #print(job.h2.zeroedAndFlippedPoint)
+     
     #NOTE: dont know why these points have to be swopped!!! 
     axis.plot( job.h2.zeroedAndFlippedPoint,job.h1.zeroedAndFlippedPoint, linewidth=2, color='blue')
+
     axis.text(job.h1.zeroedAndFlippedPoint[0],job.h1.zeroedAndFlippedPoint[1], ' Hole 1',size=15) 
     axis.text(job.h2.zeroedAndFlippedPoint[0],job.h2.zeroedAndFlippedPoint[1], ' Hole 2',size=15)
     # label holes 
@@ -123,6 +105,7 @@ def uploaded_file(filename):
     #logging.basicConfig(level=logging.DEBUG)
     logging.debug("Building endpoint uploaded_file")
     colordict = dict(app.config.get('COLOR_DICT'))
+    cncMove = dict(app.config.get('CNC_MOVES'))
     toolCollection = dict()
     for t in job.tools:
         tool = dict()
@@ -131,15 +114,8 @@ def uploaded_file(filename):
         tool["holeCount"] = t.holeCount
         tool["color"] = colordict[int(t.toolNum)]
         toolCollection[int(t.toolNum)] = tool
-    #print("urlmap")
-    #print(app.url_map)
-    #for t in toolCollection:
-    #    td = toolCollection[t]
-    #    #print(td)
-    #return render_template('index.html', toolCollection=toolCollection, sPorts=sPorts, checkit=checkit, serialPort=serialPort)
-    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
-    #return "uploaded_file rendered"
-
+    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='', cncMove=cncMove)
+    
 
 @main.route('/plot_png')
 def plot_png():
