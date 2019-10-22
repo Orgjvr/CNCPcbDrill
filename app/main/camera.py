@@ -1,41 +1,43 @@
-
+import os
 import cv2
+from .base_camera import BaseCamera
 
-class VideoCamera(object):
-    def __init__(self, index):
-        # Using OpenCV to capture from device 0. If you have trouble capturing
-        # from a webcam, comment the line below out and use a video file
-        # instead.
-        self.video = cv2.VideoCapture(index)
-        self.video.set(3,320)
-        self.video.set(4,240)
-        # If you decide to use video.mp4, you must have this file in the folder
-        # as the main.py.
-        # self.video = cv2.VideoCapture('video.mp4')
+
+class Camera(BaseCamera):
+    video_source = 0
+
+    def __init__(self):
+        if os.environ.get('OPENCV_CAMERA_SOURCE'):
+            Camera.set_video_source(int(os.environ['OPENCV_CAMERA_SOURCE']))
+        super(Camera, self).__init__()
+
+    @staticmethod
+    def set_video_source(source):
+        Camera.video_source = source
+
+    @staticmethod
+    def frames():
+        camera = cv2.VideoCapture(Camera.video_source)
+        camera.set(3,320)
+        camera.set(4,240)
+        if not camera.isOpened():
+            raise RuntimeError('Could not start camera.')
+
+        while True:
+            # read current frame
+            _, img = camera.read()
+
+            width = int(camera.get(3))
+            height = int(camera.get(4))
+
+            w2 = int(width/2)
+            h2 = int(height/2)
+
+            img = cv2.line(img, (w2,0), (w2,height), (0,255,255), 1)
+            img = cv2.line(img, (0, h2), (width, h2), (0,255,255), 1)
     
-    def __del__(self):
-        try:
-            print("__del__ cam")
-            self.video.release()
-        except:
-            print("error __del__ cam")
-            pass
-    
-    def get_frame(self):
-        success, image = self.video.read()
-        width = int(self.video.get(3))
-        height = int(self.video.get(4))
+            #old code# ret, jpeg = cv2.imencode('.jpg', img)
 
-        w2 = int(width/2)
-        h2 = int(height/2)
+            # encode as a jpeg image and return it
+            yield cv2.imencode('.jpg', img)[1].tobytes()
 
-        image = cv2.line(image, (w2,0), (w2,height), (0,255,255), 1)
-        image = cv2.line(image, (0, h2), (width, h2), (0,255,255), 1)
-        
-
-        # We are using Motion JPEG, but OpenCV defaults to capture raw images,
-        # so we must encode it into JPEG in order to correctly display the
-        # video stream.
-        ret, jpeg = cv2.imencode('.jpg', image)
-        #print("width : " + self.video.get(3))
-        return jpeg.tobytes()

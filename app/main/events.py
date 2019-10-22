@@ -71,28 +71,22 @@ def getCameras():
     result = []
     for c in cams:
         result += str(c)
-
-    #result = result[:-1]+"}'"
     print("result="+str(result))
-    #return json.dumps(result)
     return result
 
 
 @socketio.on('closeCamera', namespace='/sock')
 def closeCamera():
     """Close the last used Camera returning message to browser"""
-    result = views_camera.closeLastCam()
-    #print("result="+str(result))
-    #return json.dumps(result)
+    result = cameraFunctions.CloseCamera()
     return result
 
 
 @socketio.on('openCamera', namespace='/sock')
 def openCamera(index):
     """Close the last used Camera returning message to browser"""
-    print("Opening Cam")
-    result = views_camera.activateCam(index)
-    #print("result="+str(result))
-    #return json.dumps(result)
-    return "Done"#result
+    print("Opening Cam no:"+str(index))
+    result = cameraFunctions.OpenCamera(index)
+    return result
 
+    

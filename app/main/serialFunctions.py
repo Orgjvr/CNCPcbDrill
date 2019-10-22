@@ -187,8 +187,10 @@ def jog(code,isShift,isFine):
             gCodeGrbl.jog(code, isShift, isFine)
         else:
             print("Error Gcode Flavour value is not valid")
+        return True
     else:
         logging.debug("No Status - Port Is NOT open")
+        return False
 
 
 
