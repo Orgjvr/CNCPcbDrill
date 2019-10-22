@@ -51,8 +51,7 @@ def openSerialPort(portName,baud):
     global serialPort
     global serialIsOpen
     global gcodeFlavor
-    global cncMove
-    cncMove = app.config.get("CNC_MOVE")
+
     gcodeFlavor = app.config.get('GCODE_FLAVOUR')
     if serialIsOpen:
         closeSerialPort()
@@ -115,7 +114,7 @@ def WriteToSerial(message, timeout=10): #This will return the value which was re
             return False
     else:
         logging.debug("Not Sent - Port Is NOT open")
-        return "Not Sent - Port Is NOT open"    
+        return "Not Sent - Port Is NOT open"
 
 
 
@@ -162,6 +161,7 @@ def getStatus():
     return result
 
 def get3dPos():
+    print(" in serialFunctions.get3dPos")
     result = ""
     if gcodeFlavor == 'G':
         result = gCodeGrbl.get3dPos()
@@ -173,10 +173,10 @@ def runCmd(cmd):
 
 
 def jog(code,isShift,isFine):
-    #print("in jog")
-    global cncMove
+    print("in serialFunctions.jog")
+
     if(gcodeFlavor == "G"):
-        gCodeGrbl.jog(code, isShift, isFine, cncMove)
+        gCodeGrbl.jog(code, isShift, isFine)
     else:
         print("Error Gcode Flavour value is not valid")
 

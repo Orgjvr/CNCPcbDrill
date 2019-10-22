@@ -5,6 +5,7 @@ import logging
 import time
 from . import serialFunctions 
 import json
+from flask import current_app as app
 
 def Wakeup():
     # Wake up grbl
@@ -36,13 +37,11 @@ def get3dPos():
     xyzpos = '"X":'+pos[0]+","+'"Y":'+pos[1]+","+'"Z":'+pos[2]
     print("xyz=<"+xyzpos+">")
     pos = "{" + gStatus + xyzpos+"}"
-    print("Returning " + pos)
     return pos
     
 
-def jog(code, isShift, isFine, cncMove):
-    print(cncMove)
-    moves = dict(cncMove)
+def jog(code, isShift, isFine):
+    moves = dict(app.config.get('CNC_MOVES'))
     coarse = moves["coarse"]
     normal = moves["normal"]
     fine = moves["fine"]

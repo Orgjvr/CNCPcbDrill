@@ -36,9 +36,14 @@
             registerKeyDown();
 
         });
+        socket.on('grblResponse', function(data) {
+            console.log("grblResponse said : " + data);
+        });
+
         socket.on('position', function(data) {
-            //console.log('Data='+data);
-            //console.log('grblState =' + JSON.parse(data).grblState);
+            console.log('in base.html.position Data='+data);
+            
+            console.log('grblState =' + JSON.parse(data).grblState);
 
             switch(JSON.parse(data).grblState){
               case "Idle":
@@ -63,53 +68,43 @@
     }
 
 
+    function spaceToggle(){
+      spnArrowNormal = document.getElementById('spnArrowNormal');
+      spnArrowFine = document.getElementById('spnArrowFine');
+      spnShiftNormal = document.getElementById('spnShiftNormal');
+      spnShiftFine = document.getElementById('spnShiftFine');
+      spnArrowNormal.style.textAlign = 'right';
+      spnShiftNormal.style.textAlign = 'right';
+      
+      
+        if(moveStateFine){
+          moveStateFine = false;
+          
+          lbl = "Coarse";
+          spnArrowNormal.style.display = 'block';
+          spnArrowFine.style.display = 'none';
+          spnShiftNormal.style.display = 'block';
+          spnShiftFine.style.display = 'none';
+        } else {
+          moveStateFine = true; 
+          lbl = "Fine";
+          spnArrowNormal.style.display = 'none';
+          spnArrowFine.style.display = 'block';
+          spnShiftNormal.style.display = 'none';
+          spnShiftFine.style.display = 'block';
+        }
+      document.getElementById("moveState").innerHTML = lbl;
+    }
+
+
     function jog(e) {
-
-
       //console.log("in jog")
       var checkBox = document.getElementById("chkCanJog");
-      
-
-      //if(checkBox.checked){
-
-
-        //console.log("checked");
-        // have we hit the Space Bar ?
-
-        spnArrowNormal = document.getElementById('spnArrowNormal');
-        spnArrowFine = document.getElementById('spnArrowFine');
-        spnShiftNormal = document.getElementById('spnShiftNormal');
-        spnShiftFine = document.getElementById('spnShiftFine');
-        spnArrowNormal.style.textAlign = 'right';
-        spnShiftNormal.style.textAlign = 'right';
-        
-        if(e.code == "Space"){
-          if(moveStateFine){
-            moveStateFine = false;
-            
-            lbl = "Coarse";
-            spnArrowNormal.style.display = 'block';
-            spnArrowFine.style.display = 'none';
-            spnShiftNormal.style.display = 'block';
-            spnShiftFine.style.display = 'none';
-          } else {
-            moveStateFine = true; 
-            lbl = "Fine";
-            spnArrowNormal.style.display = 'none';
-            spnArrowFine.style.display = 'block';
-            spnShiftNormal.style.display = 'none';
-            spnShiftFine.style.display = 'block';
-          }
-          document.getElementById("moveState").innerHTML = lbl;
-          
-          
-        //}
-
-
-        //console.log("moveStateCoarse = " + moveStateCoarse);
-        //log.innerHTML = `Shift: ${e.shiftKey} </br> Alt: ${e.altKey} </br> code : ${e.code}`;
-
-        // filter out non arrow keys
+      if(e.code == "Space"){
+        spaceToggle();
+      }
+      else
+      {
         switch(e.code){
           case "ArrowLeft":
           case "ArrowRight":
@@ -130,8 +125,9 @@
 
     function update_pos() {
         socket.emit('get3dPos', {}, function(data) {
-            //console.log('get3dPos returned!');
-            //console.log(data);
+
+            console.log('get3dPos returned!');
+            console.log(data);
         });
     }
     
@@ -325,14 +321,18 @@
       var cntnt = txt.value;
       GrblState = "RUN";
       socket.emit('runCmd', cntnt, function(data) {
-            //console.log('get3dPos returned!');
-            //console.log(data);
+            console.log('get3dPos returned!');
+            console.log(data);
+            txtSerialMonitor = document.getElementById('txtSerialMonitor');
+            txtSerialMonitor.innerText += "<br/>" + str(data);
         });
       var ins = true;
-      for (var i = 0; i < ss.childNodes.length(); i++){
-        if(ss.childNodes[i].text == cntnt)
+      for (var i = 0; i < ss.options.length; i++){
+        console.log(ss.options[i]);
+        if(ss.options[i].text == cntnt){
           ins = false;
           break;
+        }
       }
       if(ins){
         opt.appendChild( document.createTextNode(cntnt) );
