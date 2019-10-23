@@ -9,6 +9,8 @@ import glob
 import logging
 #import atexit
 from . import gCodeGrbl
+from . import propFunctions
+
 from flask import current_app as app
 #from . import main
 
@@ -52,11 +54,15 @@ def openSerialPort(portName,baud):
     global serialIsOpen
     global gcodeFlavor
 
-    gcodeFlavor = app.config.get('GCODE_FLAVOUR')
+    gcodeFlavor = propFunctions.getProperty('default','GCODE_FLAVOUR','G')
     if serialIsOpen:
         closeSerialPort()
     logging.debug('openSerialPort Name: %s and baud rate %s'% (portName, baud))
     serialPort = serial.Serial(portName,baud,timeout=10)
+    propFunctions.setProperty('personal','COM_DEFAULT_PORT',portName)
+    propFunctions.setProperty('personal','COM_DEFAULT_BAUD', baud)
+
+    
     serialIsOpen = True
     logging.debug("Serial Port <%s> opened"%(portName))
     if gcodeFlavor == 'G':
@@ -148,6 +154,7 @@ def GetSerialPorts():
             pass
     #global sPorts
     #sPorts = result
+
     return result
 
 def getStatus():
@@ -188,7 +195,8 @@ global serialIsOpen
 global gcodeFlavor
 
 serialIsOpen = False
-sPorts = GetSerialPorts()
+
+#sPorts = GetSerialPorts()
 #logging.debug("printSerialPorts")
 #logging.debug(printSerialPorts())
 

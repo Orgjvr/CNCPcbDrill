@@ -10,7 +10,7 @@ from flask import current_app as app
 
 def get_cameras():
     print("cams funcs get cam")
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     #index = 2
     arr = []
     for index in range(5):

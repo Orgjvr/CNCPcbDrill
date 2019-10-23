@@ -4,6 +4,7 @@ from .. import socketio
 from . import serialFunctions 
 from . import cameraFunctions 
 from . import coreFunctions
+from . import propFunctions
 from .views import views_camera
 import json
 
@@ -55,6 +56,13 @@ def getCncMoves():
     success = coreFunctions.getCncMoves()
     return success
 
+@socketio.on('getUsedPorts', namespace='/sock')
+def getUsedPorts():
+    print('getting used port & baud')
+    success = coreFunctions.getUsedPorts()
+    print(success)
+    return success
+
 @socketio.on('getSerialPorts', namespace='/sock')
 def getSerialPorts():
     """Get a list of serial ports returning message to browser"""
@@ -92,6 +100,7 @@ def openCamera(index):
     """Close the last used Camera returning message to browser"""
     print("Opening Cam")
     result = views_camera.activateCam(index)
+    propFunctions.setProperty('personal','CAMERA_INDEX',str(index) )
     #print("result="+str(result))
     #return json.dumps(result)
     return "Done"#result

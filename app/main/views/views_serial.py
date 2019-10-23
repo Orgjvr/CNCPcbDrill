@@ -9,17 +9,18 @@ from .. import serialFunctions
 
 import time
 
-
+'''
 @main.route('/getSerialDefault')
 def getSerialDefault(): 
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
 
     logging.info("hello world")
     global baudRate
-    baudRate = app.config['SERIALPORTBAUDRATE']
+    baudRate = app.config['COM_DEFAULT_BAUD']
     logging.info("baudRate = " + str(baudRate))
     
     return Response("Baudrate = " + str(baudRate))
+'''
 
 @main.route('/getSerialPorts')
 def getSerialPorts():

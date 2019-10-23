@@ -16,8 +16,11 @@ def create_app(debug=False):
     # Load the default configuration from ./config/default.py
     app.config.from_object('config.default')
 
+    #NOTE: Moved settings from default.py to configObj ==> config/default.ini
+
     # Load the configuration from the instance folder
-    app.config.from_pyfile('config.py')
+    #app.config.from_object('./instance/config.ini')
+    #NOTE: user specific 
 
     # Load the file specified by the APP_CONFIG_FILE environment variable
     # Variables defined here will override those in the default configuration
