@@ -160,6 +160,7 @@ def GetSerialPorts():
 def getStatus():
     result = ""
     if serialIsOpen:
+        global gcodeFlavor
         if gcodeFlavor == 'G':
             result = gCodeGrbl.getStatus()
     else:
@@ -170,22 +171,33 @@ def getStatus():
 def get3dPos():
     print(" in serialFunctions.get3dPos")
     result = ""
-    if gcodeFlavor == 'G':
-        result = gCodeGrbl.get3dPos()
+    if serialIsOpen:
+        if gcodeFlavor == 'G':
+            result = gCodeGrbl.get3dPos()
+    else:
+        logging.debug("No Status - Port Is NOT open")
+        return "No Status - Port Is NOT open"    
     return result
 
 def runCmd(cmd):
     print(" in serialFunctions.runCmd")
-    return stripPos(WriteToSerial(cmd)) 
+    #return stripPos(WriteToSerial(cmd)) 
+    return WriteToSerial(cmd)
 
 
 def jog(code,isShift,isFine):
     print("in serialFunctions.jog")
 
-    if(gcodeFlavor == "G"):
-        gCodeGrbl.jog(code, isShift, isFine)
+    if serialIsOpen:
+        global gcodeFlavor
+        if(gcodeFlavor == "G"):
+            gCodeGrbl.jog(code, isShift, isFine)
+        else:
+            print("Error Gcode Flavour value is not valid")
+        return True
     else:
-        print("Error Gcode Flavour value is not valid")
+        logging.debug("No Status - Port Is NOT open")
+        return False
 
 
 
@@ -199,5 +211,5 @@ serialIsOpen = False
 #sPorts = GetSerialPorts()
 #logging.debug("printSerialPorts")
 #logging.debug(printSerialPorts())
-
+    
 
