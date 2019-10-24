@@ -94,10 +94,10 @@ def closeCamera():
 def openCamera(index):
     """Close the last used Camera returning message to browser"""
     print("Opening Cam " + str(index))
-    result = views_camera.activateCam(index)
+    #result = views_camera.activateCam(index)
+    result = cameraFunctions.OpenCamera(index)
     propFunctions.setProperty('personal','CAMERA_INDEX',str(index) )
     #print("result="+str(result))
     #return json.dumps(result)
-    return "Done"#result
-
     
+    return "Done"#result
