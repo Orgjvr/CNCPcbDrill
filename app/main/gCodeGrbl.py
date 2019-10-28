@@ -4,6 +4,7 @@
 import logging
 import time
 from . import serialFunctions 
+from . import propFunctions
 import json
 from flask import current_app as app
 
@@ -15,7 +16,10 @@ def Wakeup():
     
 
 def getStatus():
-    status = serialFunctions.WriteToSerial("?")
+    print("getting status, sending '?'")
+    status = serialFunctions.WriteToSerial("?").strip()
+    print("got  "+ str(status))
+    
     if status[0] == "<":
         status=status[1:]
     if status[-1] == ">":
@@ -23,13 +27,15 @@ def getStatus():
     statuses = str("state:"+status).split('|')
     result = "{"
     for state in statuses:
-        print("State <"+state+">")
-        result += '"'+state.split(':')[0]+'":"'+state.split(':')[1]+'",'
+        print("State inside [] ==> ["+state+"]")
+        thisSeg = '"'+state.split(':')[0]+'":"'+state.split(':')[1]+'",'
+        print(thisSeg)
+        result += thisSeg
     return result[:-1]+"}"
 
 def get3dPos():
     status = getStatus()
-    print("Status <"+status+">")
+    print("get 3dPos Status <"+status+">")
     jstatus = json.loads(status)
     print("MPos=<"+jstatus['MPos']+">")
     pos =  jstatus['MPos'].split(",")
@@ -41,7 +47,9 @@ def get3dPos():
     
 
 def jog(code, isShift, isFine):
-    moves = dict(app.config.get('CNC_MOVES'))
+    moves = propFunctions.getDictionary('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
+
+    #moves = dict( app.config.get('CNC_MOVES'))
     coarse = moves["coarse"]
     normal = moves["normal"]
     fine = moves["fine"]

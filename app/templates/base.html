@@ -22,6 +22,11 @@
     var moveStateFine = false;
     
 
+
+
+
+
+
     $(document).ready(function(){
         socket = io.connect('http://' + document.domain + ':' + location.port + '/sock');
         socket.on('connect', function() {
@@ -42,24 +47,22 @@
         });
 
         socket.on('position', function(data) {
-            console.log('in base.html.position Data='+data);
-            
-            console.log('grblState =' + JSON.parse(data).grblState);
-
-            switch(JSON.parse(data).grblState){
-              case "Idle":
-                GrblState = "IDLE";
-                break;
-              case "Run":
-                GrblState = "RUN";
-                break;
-              case "Jog":
-                GrblState = "JOG";
-            }
-            //console.log(GrblState);
-            document.getElementById("xpos").innerHTML = JSON.parse(data).X.toFixed(3);
-            document.getElementById("ypos").innerHTML = JSON.parse(data).Y.toFixed(3);
-            document.getElementById("zpos").innerHTML = JSON.parse(data).Z.toFixed(3);
+          console.log('base.html : socket.position : data =' + JSON.parse(data));
+          //console.log('base.html : socket.position : grblState =' + JSON.parse(data).grblState);
+          switch(JSON.parse(data).grblState){
+            case "Idle":
+              GrblState = "IDLE";
+              break;
+            case "Run":
+              GrblState = "RUN";
+              break;
+            case "Jog":
+              GrblState = "JOG";
+          }
+          //console.log(GrblState);
+          document.getElementById("xpos").innerHTML = JSON.parse(data).X.toFixed(3);
+          document.getElementById("ypos").innerHTML = JSON.parse(data).Y.toFixed(3);
+          document.getElementById("zpos").innerHTML = JSON.parse(data).Z.toFixed(3);
         });
     });
 
@@ -101,26 +104,28 @@
     function jog(e) {
       //console.log("in jog")
       var checkBox = document.getElementById("chkCanJog");
-      if(e.code == "Space"){
-        spaceToggle();
-      }
-      else
-      {
-        switch(e.code){
-          case "ArrowLeft":
-          case "ArrowRight":
-          case "ArrowUp":
-          case "ArrowDown":
-            // activate getPos
-            GrblState = "JOG";
-            //console.log("jogging code " + e.code + " shift " + e.shiftKey + " state " + moveStateFine);
-            socket.emit('jog', e.code, e.shiftKey, moveStateFine, function(data){
-              //console.log('jog returned!');
-              //console.log(data);
-            });
-            break;
+      if(checkBox.checked){
+        if(e.code == "Space"){
+          spaceToggle();
         }
-        return false;
+        else
+        {
+          switch(e.code){
+            case "ArrowLeft":
+            case "ArrowRight":
+            case "ArrowUp":
+            case "ArrowDown":
+              // activate getPos
+              GrblState = "JOG";
+              //console.log("jogging code " + e.code + " shift " + e.shiftKey + " state " + moveStateFine);
+              socket.emit('jog', e.code, e.shiftKey, moveStateFine, function(data){
+                //console.log('jog returned!');
+                //console.log(data);
+              });
+              break;
+          }
+          return false;
+        }
       }
     }
 
@@ -132,6 +137,16 @@
         });
     }
     
+    function selectHoleA(){
+      var xVal = document.getElementById("xpos").innerHTML;
+      var yVal = document.getElementById("ypos").innerHTML;
+      var zVal = document.getElementById("zpos").innerHTML;
+      socket.emit('selectHoleA', xVal, yVal, zVal, function(data){
+        console.log('selectingHole');
+
+      });
+
+    }
 
     function connect_serial() {
         var dropdown = document.getElementById("cmbComPort");
@@ -153,7 +168,10 @@
                     document.getElementById("cmbBaud").disabled=true;
                     document.getElementById("btnCanJog").disabled=false;
                     document.getElementById("btnCanJog").innerText="Enable Jogging";
-                    update_pos();
+                    socket.emit('get3dPos', {}, function(data) {
+                      console.log('in Connect Serial : emmitted get3dPos returned!');
+                      console.log('data = ' + data);
+                    });
                 }
             });
           }
@@ -281,10 +299,15 @@
     function mustPollPosition() {
       //console.log('check mustPollPosition');
       var checkBox = document.getElementById("chkCanJog");
-      //console.log("mustPoll = " + checkBox.checked + " Grblstate = " + GrblState)
+      //console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
       if ((checkBox.checked == true && GrblState == "JOG") || GrblState == "RUN" ){
+          console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
           //console.log("moving getting pos")
-          update_pos();
+          socket.emit('get3dPos', {}, function(data) {
+            console.log('mustPollPosition : emmitted get3dPos returned!');
+            console.log('data = ' + data);
+          });
+
       }
     }
   
@@ -357,11 +380,20 @@
       var txt = document.getElementById("txtGcode")
       var cntnt = txt.value;
       GrblState = "RUN";
-      socket.emit('runCmd', cntnt, function(data) {
-            console.log('get3dPos returned!');
-            console.log(data);
-            txtSerialMonitor = document.getElementById('txtSerialMonitor');
-            txtSerialMonitor.innerText += "<br/>" + str(data);
+      socket.emit('runCmd', cntnt, function(command, data) {
+            //console.log('runCmd returned!');
+            //console.log('Command : ' + command);
+            //console.log('Response : ' + data);
+            $('#txtSerialMonitor').append( '\n==> : ' + command);
+            $('#txtSerialMonitor').append( '\n<== : ' + data);
+            //txtSerialMonitor = document.getElementById('txtSerialMonitor');
+            //txtSerialMonitor.innerText =+ "<br />";
+            //txtSerialMonitor.innerText =+ 'Command : ' + data[0] + "\\\r\\\n";
+            //txtSerialMonitor.innerText =+ txtSerialMonitor.innerText +  'Response : ' + data[1] + "\\\r\\\n";
+
+
+            //GrblState = "IDLE";
+
         });
       var ins = true;
       for (var i = 0; i < ss.options.length; i++){

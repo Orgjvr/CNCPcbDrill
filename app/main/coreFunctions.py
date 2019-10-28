@@ -15,9 +15,10 @@ from flask import current_app as app
 
 def getCncMoves():
     #print('getting Moves from coreFunctions')
-    retVal = propFunctions.getProperty('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
+    retVal = propFunctions.getDictionary('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
+    #retVal = propFunctions.getProperty('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
     #print("returned = " + retVal)
-    retVal = dict(json.loads(retVal))
+    #retVal = dict(json.loads(retVal))
     #print('this is the moves')
     print(retVal)
     #print("this shhouold work")

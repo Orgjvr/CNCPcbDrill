@@ -24,7 +24,7 @@ def runCmd(cmdText):
         success = serialFunctions.runCmd(cmdText)
     except Exception as e:
         print(e)
-    return success
+    return cmdText, success
 
 @socketio.on('jog', namespace='/sock')
 def jog(code, isShift, isFine):

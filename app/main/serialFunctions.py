@@ -91,6 +91,7 @@ def WriteToSerial(message, timeout=10): #This will return the value which was re
         try:
             #print("serial is open")
             gotMsg = False
+            gotok = False
             l = message.strip() # Strip all EOL characters for consistency
             l = l.encode('utf-8')
             #print('Sending: <' + str(l) + '>' )
@@ -98,20 +99,32 @@ def WriteToSerial(message, timeout=10): #This will return the value which was re
             global serialPort
             #print("flushing ")
             serialPort.flushInput()  # Flush old unreceived responses
-            #print("writing " + str(l))
+            print("writing " + str(l))
             serialPort.write((l)) # Send g-code block to grbl
             #loop until ok
             grbl_out_str = ""
             logging.debug("will read Line")
+            print("will read line")
             grbl_out = serialPort.readline() # Wait for grbl response with carriage return
             #print("grbl_out " + str(grbl_out))
-            logging.debug("Line read")
-            while grbl_out.decode('utf-8').strip() != 'ok' and starttime+timeout > time.time():
-                gotMsg = True
-                grbl_out_str += str(grbl_out.decode('utf-8').strip())
-                grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-                logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
-            if not (gotMsg):
+            
+            if grbl_out.decode('utf-8').strip() == 'ok':
+                print("got ok back ")
+                gotok = True
+                grbl_out_str = str("returned OK\r\n")
+                print(grbl_out_str)
+            else:
+                print("got somthing else back - not ok")
+                logging.debug("Line read")
+                while grbl_out.decode('utf-8').strip() != 'ok' and starttime+timeout > time.time():
+                    gotMsg = True
+                    grbl_out_str += str(grbl_out.decode('utf-8').strip() + '\n')
+                    print("got " + grbl_out_str)
+                    grbl_out = serialPort.readline() # Wait for grbl response with carriage return
+                    logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
+                    print(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
+                
+            if not (gotMsg) and not (gotok):
                 grbl_out_str = " "
             logging.debug(' : ' + grbl_out_str)
             return grbl_out_str
