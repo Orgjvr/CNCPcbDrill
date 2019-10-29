@@ -69,6 +69,12 @@ def jog(code, isShift, isFine):
             return stripPos(serialFunctions.WriteToSerial("$J=G91 Y%2.2f F500"% (val)))
     if code == 'ArrowDown':
             return stripPos(serialFunctions.WriteToSerial("$J=G91 Y-%2.2f F500"% (val)))
+    if code == 'PageUp':
+            return stripPos(serialFunctions.WriteToSerial("$J=G91 Z-%2.2f F500"% (val)))
+    if code == 'PageDown':
+            return stripPos(serialFunctions.WriteToSerial("$J=G91 Z%2.2f F500"% (val)))
+
+
 
 def stripPos(pos):
     if pos[0] == "<":

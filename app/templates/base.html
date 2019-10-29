@@ -103,6 +103,11 @@
 
     function jog(e) {
       //console.log("in jog")
+      //console.log("e.code = " + e.code);
+     // console.log("e.shiftKey = " + e.shiftKey);
+     // console.log("e.ctrlKey = " + e.ctrlKey);
+
+
       var checkBox = document.getElementById("chkCanJog");
       if(checkBox.checked){
         if(e.code == "Space"){
@@ -111,6 +116,8 @@
         else
         {
           switch(e.code){
+            case "PageUp":
+            case "PageDown":
             case "ArrowLeft":
             case "ArrowRight":
             case "ArrowUp":
@@ -568,6 +575,42 @@
       txt.value = sel.options[index].text;
     }
 
+
+    function geth1Coords() {
+        console.log("Cap 1 clicked");
+        // document.getElementById("xpos").innerHTML
+        //console.log("pos x text = " + $('xpos').text);
+        //console.log("pos x value = " + $('xpos').value);
+        //console.log("pos x innerHTML= " + $('xpos').innerHTML);
+        
+        
+        document.getElementById("h1X").innerHTML =  document.getElementById("xpos").innerHTML
+        document.getElementById("h1Y").innerHTML = document.getElementById("ypos").innerHTML;
+    }
+
+    function geth2Coords() {
+      console.log("cap 2 Clicked");
+      
+      document.getElementById("h2X").innerHTML =  document.getElementById("xpos").innerHTML
+      document.getElementById("h2Y").innerHTML = document.getElementById("ypos").innerHTML;
+ 
+    }
+
+    function setZHeight() {
+      document.getElementById("zHeight").innerHTML = document.getElementById("zpos").innerHTML;
+
+    }
+
+    function runProcess() {
+      h1X = document.getElementById('h1X').innerHTML;
+      h1Y = document.getElementById('h1Y').innerHTML;
+      h2X = document.getElementById('h2X').innerHTML;
+      h2Y = document.getElementById('h2Y').innerHTML;
+      socketio.emit('runProcess', h1X, h1Y, h2X, h2Y , function(response){
+
+      });
+
+    }
 </script>
 
 

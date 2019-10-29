@@ -2,9 +2,9 @@
 
 {% block content %}
 <div id='divtwo'> 
-    <table border='0'>
+    <table border='1'>
         <tr>
-            <td style='vertical-align:top;'>
+            <td style='vertical-align:top;' rowspan=2>
             <div id='toolTable'></div>
                  <table border="1" style=" border-collapse:collapse;">
                     <tr>
@@ -27,7 +27,7 @@
                     {% endfor %}
                 </table>
             </td>
-            <td>
+            <td rowspan=2>
                 <table border="0" style="padding:0;">
                     <tr>
                         <td style="text-align: center; ">
@@ -45,12 +45,30 @@
                 
             </td>
             <!-- -->
-            <td>
-                <div id="camdiv">
+            <td style="vertical-align: top; height: 244px; width: 324px;" >
+                <div id="camdiv" >
                 </div>
+            
             </td>
             <!-- -->
                     
+        </tr>
+        <tr>
+            <td>
+                <div id="setZdiv">
+                    <button id="btnSetZ" onclick="setZHeight()" >Cap 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">Z:</label>&nbsp;&nbsp;<label id="zHeight" style="font:caption;font-size: larger;">000.000 </label>
+                </div>
+ 
+                <div id="capBtns2">
+                    <button id="btnCap1" onclick="geth1Coords()" >Cap 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h1X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h1Y" style="font:caption;font-size: larger;" >000.000</label>
+                </div>
+                <div id="capBtns2">
+                    <button id="btnCap1" onclick="geth2Coords()" >Cap 2</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h2X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h2Y" style="font:caption;font-size: larger;" >000.000</label>
+                </div>
+                <div id="btnProcess">
+                    <button id="btnProcess" onclick="runProcess()" >Process</button> 
+                </div>
+            </td>
         </tr>
     </table>
 </div>

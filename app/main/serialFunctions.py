@@ -214,6 +214,8 @@ def jog(code,isShift,isFine):
 
 
 
+
+
 global serialPort
 global sPorts
 global serialIsOpen
