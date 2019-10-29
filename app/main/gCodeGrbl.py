@@ -16,9 +16,9 @@ def Wakeup():
     
 
 def getStatus():
-    print("getting status, sending '?'")
+    logging.debug("getting status, sending '?'")
     status = serialFunctions.WriteToSerial("?").strip()
-    print("got  "+ str(status))
+    logging.debug("got back from WriteToSerial : "+ str(status))
     
     if status[0] == "<":
         status=status[1:]
@@ -27,21 +27,20 @@ def getStatus():
     statuses = str("state:"+status).split('|')
     result = "{"
     for state in statuses:
-        print("State inside [] ==> ["+state+"]")
+        logging.debug("State inside [] ==> ["+state+"]")
         thisSeg = '"'+state.split(':')[0]+'":"'+state.split(':')[1]+'",'
-        print(thisSeg)
         result += thisSeg
     return result[:-1]+"}"
 
 def get3dPos():
     status = getStatus()
-    print("get 3dPos Status <"+status+">")
+    logging.debug("get 3dPos Status <"+status+">")
     jstatus = json.loads(status)
-    print("MPos=<"+jstatus['MPos']+">")
+    logging.debug("MPos=<"+jstatus['MPos']+">")
     pos =  jstatus['MPos'].split(",")
     gStatus = '"grblState":"' + jstatus['state'] + '", '
     xyzpos = '"X":'+pos[0]+","+'"Y":'+pos[1]+","+'"Z":'+pos[2]
-    print("xyz=<"+xyzpos+">")
+    logging.debug("xyz=<"+xyzpos+">")
     pos = "{" + gStatus + xyzpos+"}"
     return pos
     
@@ -77,3 +76,27 @@ def stripPos(pos):
     if pos[-1] == ">":
         pos=pos[:-1]
     return str(pos)
+
+
+def ConfigTranslation(data):
+    retVal = ""
+    titles = propFunctions.getDictionary('default','GRBL_SETTINGS','{"error":"Error getting Settings"}')
+    #print(titles)
+    lines = data.splitlines(False)
+    for line in lines:
+        print(line)
+        tmp = line[1:]   # remove $
+        #print(" after removing $ ==> " + tmp)
+        parts = tmp.split("=")
+        prefix = ("   " + parts[0])[-3:]
+        #print("prefix = [" + prefix + "]")
+        mid = (parts[1] + "            ")[0:10]
+        lne= "\n[" + prefix + "] " + mid + " " + titles[parts[0]] 
+        #print(lne)
+        retVal += lne
+        #print
+    return retVal
+
+
+
+        

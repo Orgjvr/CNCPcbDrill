@@ -5,6 +5,7 @@ from . import serialFunctions
 from . import cameraFunctions 
 from . import coreFunctions
 from . import propFunctions
+from . import gCodeGrbl
 from .views import views_camera
 import json
 
@@ -15,6 +16,13 @@ def get3dPos(message):
     print("Emitting position")
     emit('position', pos)
     return pos
+
+
+@socketio.on('grblTranslateSettings' , namespace='/sock')
+def grblTranslateSettings(settings):
+    # get settings names
+    response = gCodeGrbl.ConfigTranslation(settings)
+    return response
 
 
 @socketio.on('runCmd', namespace='/sock')
