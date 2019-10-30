@@ -7,6 +7,7 @@ import sys
 import _thread
 import glob
 import logging
+import traceback
 #import atexit
 from . import gCodeGrbl
 from . import propFunctions
@@ -24,12 +25,12 @@ def getSerialPorts():
     for port in portlist:
         result += "portname:'" + port +"',"
     result = result[:-1]+'}"'
-    print("Portlist:"+result)
+    logging.debug("Portlist:"+result)
     return result
 
 def printSerialPorts():
-    print("Ports=")
-    print(sPorts)
+    logging.debug("Ports=")
+    logging.debug(sPorts)
 
 def closeSerialPort():
     try:
@@ -50,6 +51,8 @@ def openSerialPort(portName,baud):
         :returns:
             True or False on whether it could open
     """
+
+
     global serialPort
     global serialIsOpen
     global gcodeFlavor
@@ -70,6 +73,7 @@ def openSerialPort(portName,baud):
     return serialIsOpen
 
 def flushInput():
+  
     global serialPort
     if serialIsOpen:
         serialPort.flushInput()  # Flush startup text in serial input
@@ -82,57 +86,69 @@ def flushInput():
 def WriteToSerial(message, timeout=10): #This will return the value which was returned from the serial port.
     #TODO: implement a timeout waiting for ok response
     #timeout = 10 #Max time in seconds to wait for result on serial port
-    #print("in Write to Serial")
-    #logging.basicConfig(level=logging.DEBUG)
+    #logging.debug("in Write to Serial")
+
+ 
+
     starttime=time.time()
-    logging.debug("Trying to send:<%s>"%(message))
-    #print("Trying to send:<%s>"%(message))
+    logging.debug("serialFunctions.WriteToSerial : Trying to send:<%s> @ %s"%(message,str(starttime)))
+    #logging.debug("Trying to send:<%s>"%(message))
     if serialIsOpen:
         try:
-            #print("serial is open")
+            logging.debug("serialFunctions.WriteToSerial : serial is open")
             gotMsg = False
             gotok = False
             l = message.strip() # Strip all EOL characters for consistency
             l = l.encode('utf-8')
-            #print('Sending: <' + str(l) + '>' )
+            logging.debug("serialFunctions.WriteToSerial : Sending: <" + str(l) + '>' )
             l = l + '\r\n'.encode('utf-8')
             global serialPort
-            #print("flushing ")
+            logging.debug("serialFunctions.WriteToSerial : flushing ")
             serialPort.flushInput()  # Flush old unreceived responses
-            print("writing " + str(l))
+            logging.debug("serialFunctions.WriteToSerial : writing " + str(l))
             serialPort.write((l)) # Send g-code block to grbl
             #loop until ok
+            retVal = ""
             grbl_out_str = ""
-            logging.debug("will read Line")
-            #print("will read line")
+            logging.debug("serialFunctions.WriteToSerial : will read Line")
+            #logging.debug("will read line")
             grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-            #print("grbl_out " + str(grbl_out))
+            logging.debug("serialFunctions.WriteToSerial : grbl_out " + str(grbl_out))
             
             if grbl_out.decode('utf-8').strip() == 'ok':
-                #print("got ok back ")
+                logging.debug("serialFunctions.WriteToSerial : got ok back ")
                 gotok = True
                 grbl_out_str = str("returned OK\r\n")
-                #print(grbl_out_str)
+                #logging.debug(grbl_out_str)
             else:
-                #print("got somthing else back - not ok")
-                logging.debug("Line read")
+                logging.debug("serialFunctions.WriteToSerial : got somthing else back - not ok")
+                logging.debug("serialFunctions.WriteToSerial : Line read")
                 while grbl_out.decode('utf-8').strip() != 'ok' and starttime+timeout > time.time():
                     gotMsg = True
                     grbl_out_str += str( grbl_out.decode('utf-8').strip() + '\n')
-                    #print("got " + grbl_out_str)
+                    logging.debug("serialFunctions.WriteToSerial : got " + grbl_out_str)
                     grbl_out = serialPort.readline() # Wait for grbl response with carriage return
-                    logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
-                    #print(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
-                
+                    logging.debug('serialFunctions.WriteToSerial :  nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
+                    #logging.debug(' nextline: <' + str(grbl_out.decode('utf-8').strip()) +'>')
+                if(starttime+timeout < time.time()):
+                    logging.debug("serialFunctions.WriteToSerial : Timeout " + str(time.time()))
+                    logging.debug("serialFunctions.WriteToSerial : Checking " + str(starttime+timeout) +  " > " + str(time.time()))
+                    logging.debug("serialFunctions.WriteToSerial : manual Timeout Exceeded ")
+                    return '{"grblState":"TIMEOUT"}'
             if not (gotMsg) and not (gotok):
                 grbl_out_str = " "
-            logging.debug(' : ' + grbl_out_str)
+            logging.debug('serialFunctions.WriteToSerial  !gotMsg && !gotok : ' + grbl_out_str)
             return grbl_out_str
         except Exception as e3:
-            logging.error(e3)
+            logging.debug("serialFunctions.WriteToSerial : Exception ==============================")
+            logging.debug(repr(traceback.format_stack()))
+            
+            logging.debug("serialFunctions.WriteToSerial : Exception ==============================")
+            
+            logging.debug("serialFunctions.WriteToSerial : " + e3)
             return False
     else:
-        logging.debug("Not Sent - Port Is NOT open")
+        logging.debug("serialFunctions.WriteToSerial : Not Sent - Port Is NOT open")
         return "Not Sent - Port Is NOT open"
 
 
@@ -145,13 +161,15 @@ def GetSerialPorts():
         :returns:
             A list of the serial ports available on the system
     """
+  
+
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
         # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
     elif sys.platform.startswith('darwin'):
-        #print("we are on a mac")
+        #logging.debug("we are on a mac")
         ports = glob.glob('/dev/tty.*')
     else:
         raise EnvironmentError('Unsupported platform')
@@ -171,6 +189,7 @@ def GetSerialPorts():
     return result
 
 def getStatus():
+ 
     result = ""
     if serialIsOpen:
         global gcodeFlavor
@@ -182,10 +201,12 @@ def getStatus():
     return result
 
 def get3dPos():
-    print(" in serialFunctions.get3dPos")
+ 
+    logging.debug(" in serialFunctions.get3dPos")
     result = ""
     if serialIsOpen:
         if gcodeFlavor == 'G':
+            logging.debug("redirecting to : gCodeGrbl.get3dPos()")
             result = gCodeGrbl.get3dPos()
     else:
         logging.debug("No Status - Port Is NOT open")
@@ -193,20 +214,23 @@ def get3dPos():
     return result
 
 def runCmd(cmd):
-    print(" in serialFunctions.runCmd")
+
+    logging.debug(" in serialFunctions.runCmd")
     #return stripPos(WriteToSerial(cmd)) 
     return WriteToSerial(cmd)
 
 
 def jog(code,isShift,isFine):
-    print("in serialFunctions.jog")
+
+
+    logging.debug("in serialFunctions.jog")
 
     if serialIsOpen:
         global gcodeFlavor
         if(gcodeFlavor == "G"):
             gCodeGrbl.jog(code, isShift, isFine)
         else:
-            print("Error Gcode Flavour value is not valid")
+            logging.debug("Error Gcode Flavour value is not valid")
         return True
     else:
         logging.debug("No Status - Port Is NOT open")

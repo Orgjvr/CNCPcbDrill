@@ -95,7 +95,7 @@
                     </td>
                 </tr>
                 <tr>
-                <th><span style="font:caption;font-size:medium;">SPACE</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="moveState">Coarse / Fine</span></td></td>
+                <th><span style="font:caption;font-size:medium;">F2</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="moveState">Coarse / Fine</span></td></td>
                 </tr>
                 <tr>
                     <th><span style="font:caption;font-size:medium;">Arrow</span></th>
@@ -136,6 +136,23 @@
                                 <option>G0 X20 Y20 Z30 F3000</option>
                             </select>
                         </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td>
+                            <button id="btnDollarDollar" onclick="sendCmd('$$')" style="font: small-caption;">$$</button>
+                        </td>
+                        <td>
+                            <button id="btnDollarHash" onclick="sendCmd('$#')" style="font: small-caption;">$#</button>
+                        </td>
+                        <td>
+                            <button id="btnDollarG" onclick="sendCmd('$G')" style="font: small-caption;">$G</button>
+                        </td>
+                        <td>
+                            <button id="btnZeroG54" onclick="sendCmd('G10 L20 P1 X0 Y0 Z0')" style="font: small-caption;">zero G54</button>
+                        </td>
+
                     </tr>
                 </table>
             </td>

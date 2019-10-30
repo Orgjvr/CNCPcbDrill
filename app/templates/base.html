@@ -16,26 +16,25 @@
 <!- -  -->
 <script src="{{ url_for('static', filename='js/socket.io-1.3.6.min.js') }}"></script>
 
+
 <script type="text/javascript" charset="utf-8">
     var socket;
     var GrblState = "IDLE";  // Idle / Running
     var moveStateFine = false;
-    
 
-
-
-
+    // DEBUG true / false
+    var debug = false;
 
 
     $(document).ready(function(){
         socket = io.connect('http://' + document.domain + ':' + location.port + '/sock');
         socket.on('connect', function() {
             socket.emit('joined', {});
-            //console.log('Websocket connected!');
+            if(debug) console.log('Websocket connected!');
             getSerialPorts();
             getBaudrates();
             getCameras();
-            //console.log('getting moves');
+            if(debug) console.log('getting moves');
             getCncMoves();
             setInterval(mustPollPosition, 500);
             registerKeyDown();
@@ -43,11 +42,13 @@
 
         });
         socket.on('grblResponse', function(data) {
-            console.log("grblResponse said : " + data);
+          if(debug) console.log("grblResponse said : " + data);
         });
 
         socket.on('position', function(data) {
-          console.log('base.html : socket.position : data =' + JSON.parse(data));
+          if(debug) console.log("position returnedc ....");
+          if(debug) console.log(data);
+          if(debug) console.log('base.html : socket.position : data =' + JSON.parse(data));
           //console.log('base.html : socket.position : grblState =' + JSON.parse(data).grblState);
           switch(JSON.parse(data).grblState){
             case "Idle":
@@ -58,21 +59,32 @@
               break;
             case "Jog":
               GrblState = "JOG";
+              break;
+            case "TIMEOUT":
+              GrblState = "TIMEOUT";
+              $('#txtSerialMonitor').append( '\n> : SERIAL SEND CMD TIMEOUT ');
+              break;
+            default:
+              GrblState = "EXCEPTION";
+              $('#txtSerialMonitor').append( '\n> : EXCEPTION ' + data);
+              break;
           }
-          //console.log(GrblState);
+          if(GrblState != "TIMEOUT" && GrblState != "EXCEPTION"){
+            if(debug) console.log(GrblState);
           document.getElementById("xpos").innerHTML = JSON.parse(data).X.toFixed(3);
           document.getElementById("ypos").innerHTML = JSON.parse(data).Y.toFixed(3);
           document.getElementById("zpos").innerHTML = JSON.parse(data).Z.toFixed(3);
+          }
         });
     });
 
     function registerKeyDown(){
       document.addEventListener('keydown', jog);
-      console.log("registered key Down")
+      if(debug) console.log("registered key Down")
     }
 
 
-    function spaceToggle(){
+    function f2Toggle(){
       spnArrowNormal = document.getElementById('spnArrowNormal');
       spnArrowFine = document.getElementById('spnArrowFine');
       spnShiftNormal = document.getElementById('spnShiftNormal');
@@ -102,19 +114,18 @@
 
 
     function jog(e) {
-      //console.log("in jog")
-      //console.log("e.code = " + e.code);
-     // console.log("e.shiftKey = " + e.shiftKey);
-     // console.log("e.ctrlKey = " + e.ctrlKey);
+      if(debug) console.log("in jog")
+      if(debug) console.log("e.code = " + e.code);
+      if(debug) console.log("e.shiftKey = " + e.shiftKey);
+      if(debug) console.log("e.ctrlKey = " + e.ctrlKey);
 
-
+      if(e.code == "F2"){
+        if(debug) console.log("running f2Toggle()");
+          f2Toggle();
+      }
+      
       var checkBox = document.getElementById("chkCanJog");
       if(checkBox.checked){
-        if(e.code == "Space"){
-          spaceToggle();
-        }
-        else
-        {
           switch(e.code){
             case "PageUp":
             case "PageDown":
@@ -124,23 +135,23 @@
             case "ArrowDown":
               // activate getPos
               GrblState = "JOG";
-              //console.log("jogging code " + e.code + " shift " + e.shiftKey + " state " + moveStateFine);
+              if(debug) console.log("jogging code " + e.code + " shift " + e.shiftKey + " state " + moveStateFine);
               socket.emit('jog', e.code, e.shiftKey, moveStateFine, function(data){
-                //console.log('jog returned!');
-                //console.log(data);
+                if(debug) console.log('jog returned!');
+                if(debug) console.log(data);
               });
               break;
           }
           return false;
-        }
       }
     }
+    
 
     function update_pos() {
         socket.emit('get3dPos', {}, function(data) {
 
-            console.log('get3dPos returned!');
-            console.log(data);
+          if(debug) console.log('get3dPos returned!');
+          if(debug) console.log(data);
         });
     }
     
@@ -149,7 +160,7 @@
       var yVal = document.getElementById("ypos").innerHTML;
       var zVal = document.getElementById("zpos").innerHTML;
       socket.emit('selectHoleA', xVal, yVal, zVal, function(data){
-        console.log('selectingHole');
+        if(debug) console.log('selectingHole');
 
       });
 
@@ -160,24 +171,24 @@
         var selectedPort = dropdown.options[dropdown.selectedIndex].value;
         var dropdownBaud = document.getElementById("cmbBaud");
         var baud = dropdownBaud.options[dropdownBaud.selectedIndex].value;
-        console.log('D='+selectedPort);
+        if(debug) console.log('D='+selectedPort);
         if ( dropdown.selectedIndex != 0 ) {
             socket.emit('openSerial', selectedPort ,baud, function(data) {
-                console.log('Serial status:');
-                console.log(data);
+              if(debug) console.log('Serial status:');
+              if(debug) console.log(data);
                 if (data == true) {
-                    console.log("Change button to disconnect");
+                    if(debug) console.log("Change button to disconnect");
                     document.getElementById("btnDisconnect").style.display = "inline";
                     document.getElementById("btnConnect").style.display = "none";
-                    //console.log("enable canJog");
-                    //document.getElementById("canJog").disabled = false;
+                    if(debug) console.log("enable canJog");
+                    if(debug) document.getElementById("canJog").disabled = false;
                     document.getElementById("cmbComPort").disabled=true;
                     document.getElementById("cmbBaud").disabled=true;
                     document.getElementById("btnCanJog").disabled=false;
                     document.getElementById("btnCanJog").innerText="Enable Jogging";
                     socket.emit('get3dPos', {}, function(data) {
-                      console.log('in Connect Serial : emmitted get3dPos returned!');
-                      console.log('data = ' + data);
+                      if(debug) console.log('in Connect Serial : emmitted get3dPos returned!');
+                      if(debug) console.log('data = ' + data);
                     });
                 }
             });
@@ -185,7 +196,7 @@
         }
 
     function toggleCanJog(setter){
-      console.log("in toggle");
+      if(debug) console.log("in toggle");
       btn = document.getElementById("btnCanJog");
       chk = document.getElementById("chkCanJog");
       
@@ -203,13 +214,13 @@
 
     function disconnect_serial() {
         socket.emit('closeSerial', function(data) {
-            console.log('Serial status:');
-            console.log(data);
+          if(debug) console.log('Serial status:');
+          if(debug) console.log(data);
             if (data == true) {
-                console.log("Change button to disconnect");
+              if(debug) console.log("Change button to disconnect");
                 document.getElementById("btnConnect").style.display = "inline";
                 document.getElementById("btnDisconnect").style.display = "none";
-                //console.log("disable canJog");
+                if(debug) console.log("disable canJog");
                 toggleCanJog(0)
                 document.getElementById("btnCanJog").disabled = true;
                 document.getElementById("btnCanJog").innerText = "Serial Needed";
@@ -222,17 +233,17 @@
         
     function getUsedPort() {
       socket.emit('getUsedPorts', function (data){
-          //console.log('getUsed');
-          //console.log("Data=" + data);
-          //console.log("json = " + JSON.parse(data));
-          //console.log(port = JSON.parse(data).port);
+        if(debug) console.log('getUsed');
+        if(debug) console.log("Data=" + data);
+        if(debug) console.log("json = " + JSON.parse(data));
+        if(debug) console.log(port = JSON.parse(data).port);
           
-          var tmp = JSON.parse(data).port;
+        var tmp = JSON.parse(data).port;
           
           if( tmp != "None") {
             drp = document.getElementById("cmbComPort");
             for( var t = 0; t < drp.options.length; t++){
-              //console.log("This option = " + drp.options[t].innerText)
+              if(debug) console.log("This option = " + drp.options[t].innerText)
               if (drp.options[t].innerText == tmp){
                 drp.selectedIndex = t;
                 break;
@@ -241,12 +252,12 @@
           }
 
           var baud = JSON.parse(data).baud;
-          //console.log("baud = " + baud);
+          if(debug) console.log("baud = " + baud);
           if( baud != "None") {
             drb = document.getElementById("cmbBaud");
-            //console.log("cmbBaud = " + cmbBaud.options.length);
+            if(debug) console.log("cmbBaud = " + cmbBaud.options.length);
             for( var t = 0; t < drb.options.length; t++){
-              //console.log("This option = " + drb.options[t].innerText)
+              if(debug) console.log("This option = " + drb.options[t].innerText)
               if (drb.options[t].innerText == baud){
                 drb.selectedIndex = t;
                 break;
@@ -259,8 +270,8 @@
 
     function getCncMoves() {
       socket.emit('getCncMoves', function(data) {
-        console.log('getCncMove:');
-        console.log('Data=' + data);
+        if(debug) console.log('getCncMove:');
+        if(debug) console.log('Data=' + data);
         document.getElementById('spnArrowNormal').innerHTML = data['coarse'] + ' mm';
         document.getElementById('spnArrowFine').innerHTML = data['normal'] + ' mm';
         document.getElementById('spnShiftNormal').innerHTML = data['normal'] + ' mm';
@@ -278,22 +289,22 @@
     
     function getSerialPorts() {
         socket.emit('getSerialPorts', function(data) {
-            console.log('getSerialPorts:');
-            console.log('Data='+data);
+          if(debug) console.log('getSerialPorts:');
+          if(debug) console.log('Data='+data);
 
             dropdown = $('#cmbComPort');
             dropdown.empty();
             dropdown.append('<option selected="true" disabled>Choose serial port</option>');
             dropdown.prop('selectedIndex', 0);
             for (i in data) {
-              console.log('DataA='+data[i]);
+              if(debug) console.log('DataA='+data[i]);
               dropdown.append($('<option></option>').attr('value', data[i]).text(data[i]));
             }
         });
       }
 
     function getBaudrates() {
-      console.log('getBaudrates:');
+      if(debug) console.log('getBaudrates:');
       dropdown = $('#cmbBaud');
       dropdown.empty();
       dropdown.append($('<option></option>').attr('value', 250000).text(250000));
@@ -304,36 +315,39 @@
     }
 
     function mustPollPosition() {
-      //console.log('check mustPollPosition');
+      if(debug) console.log('check mustPollPosition');
       var checkBox = document.getElementById("chkCanJog");
-      //console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
+      if(debug) console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
       if ((checkBox.checked == true && GrblState == "JOG") || GrblState == "RUN" ){
-          console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
-          //console.log("moving getting pos")
+        if(debug) console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
+        if(debug) console.log("moving getting pos")
           socket.emit('get3dPos', {}, function(data) {
-            console.log('mustPollPosition : emmitted get3dPos returned!');
-            console.log('data = ' + data);
+            if(debug) console.log('mustPollPosition : emmitted get3dPos returned!');
+            if(debug) console.log('data = ' + data);
           });
-
       }
+      else {
+        GrblState = "Idle";
+      }
+
     }
   
     function getCameras() {
-      console.log('getCameras called');
+      if(debug) console.log('getCameras called');
       var elem = document.getElementById("camfeed");
       if (elem != null) {
           disable_cam();
       }
       socket.emit('getCameras', function(data) {
-          console.log('getCameras:');
-          console.log('Data='+data);
+        if(debug) console.log('getCameras:');
+        if(debug) console.log('Data='+data);
 
           dropdown = $('#cmbCameras');
           dropdown.empty();
           dropdown.append('<option selected="true" disabled>Choose Camera</option>');
           dropdown.prop('selectedIndex', 0);
           for (i in data) {
-            console.log('DataC='+data[i]);
+            if(debug) console.log('DataC='+data[i]);
             dropdown.append($('<option></option>').attr('value', data[i]).text(data[i]));
           }
       });
@@ -341,7 +355,7 @@
     
 
     function enable_cam() {
-      console.log('enable_cam() called');
+      if(debug) console.log('enable_cam() called');
       var p = document.getElementById('camdiv');
       var newElement = document.createElement('img');
       newElement.setAttribute('id', 'camfeed');
@@ -355,17 +369,17 @@
       var selectedCam = dropdown.options[dropdown.selectedIndex].value;
       if ( dropdown.selectedIndex != 0 ) {
             socket.emit('openCamera', selectedCam, function(data) {
-                console.log('Camera opened:');
-                console.log(data);
+              if(debug) console.log('Camera opened:');
+              if(debug) console.log(data);
                 if (data == true) {
-                    console.log("Change button to disconnect");
+                  if(debug) console.log("Change button to disconnect");
                 }
             });
           }
     }
     
     function disable_cam() {
-      console.log('disable_cam() called');
+      if(debug) console.log('disable_cam() called');
       var elem = document.getElementById("camfeed");
       if (elem != null) {
           elem.remove();
@@ -373,11 +387,62 @@
       document.getElementById("btnCamOn").style.display = "inline";
       document.getElementById("btnCamOff").style.display = "none";
       socket.emit('closeCamera', function(data) {
-          console.log('closeCamera:');
-          console.log('Data='+data);
+        if(debug) console.log('closeCamera:');
+        if(debug) console.log('Data='+data);
       });
     }
     
+    function sendCmd(cmd){
+      if(debug) console.log("in sendCmd => " + cmd);
+      GrblState = "RUN";
+      socket.emit('runCmd', cmd, function(command, data) {
+        $('#txtSerialMonitor').append( '\n> : ' + command);
+        switch(command){
+          case '$$':
+          if(debug) console.log(data)
+              socket.emit('grblTranslateSettings', data, function(response) {
+                if(debug) console.log("data back from grblTranslateSettings")
+                
+                lines = response.split('\n');
+                lines.forEach(function(line) {
+                  $('#txtSerialMonitor').append( '\n< ' + line);
+                });
+              });
+            break;
+          case '$#':
+            
+          lines = data.split('\n');
+          lines.forEach(function(line) {
+          if(line != ""){
+            var num = line.substring(1,4);
+            if(debug) console.log(num);
+            socket.emit('getDollarHashMeanings', num, function (suffix) {
+              $('#txtSerialMonitor').append( '\n< ' + (line + "                 ").substring(0,27) + " " + suffix);
+              });
+            }
+          });
+            break;
+          case "$G": 
+            $('#txtSerialMonitor').append( '\n< : ' + data);
+
+            var tmp = data.substring(4);
+            tmp = tmp.replace("]", "").trim();
+            parts = tmp.split(" ");
+            parts.forEach(function (code) {
+              socket.emit('getDollarGMeanings', code, function (meaning) {
+                $('#txtSerialMonitor').append( '\n< : ' + code + " : " + meaning);
+              });
+            });
+            break; 
+          default:
+          lines = data.split('\n');
+            lines.forEach(function(line) {
+              $('#txtSerialMonitor').append( '\n< : ' + line);
+            });
+            break;
+        }
+      });
+    }
 
     // add Option adds Command text to Select below 
 
@@ -386,174 +451,12 @@
       var opt = document.createElement('option');
       var txt = document.getElementById("txtGcode")
       var cntnt = txt.value;
-      var second = "";
-      switch (cntnt){
-        case "$$": 
-          second = "translate";
-          break;
-    
-      }
-      GrblState = "RUN";
-      socket.emit('runCmd', cntnt, function(command, data) {
-            $('#txtSerialMonitor').append( '\n> : ' + command);
-            switch(command){
-              case '$$':
-                  //console.log(data)
-                  socket.emit('grblTranslateSettings', data, function(response) {
-                    //console.log("data back from grblTranslateSettings")
-                   
-                    lines = response.split('\n');
-                    lines.forEach(function(line) {
-                      $('#txtSerialMonitor').append( '\n< ' + line);
-                    });
 
-                  });
-                break;
-              case '$#':
-               
-              lines = data.split('\n');
-              lines.forEach(function(line) {
-              if(line != ""){
-                var num = line.substring(1,4);
-                console.log(num);
-                switch(num){
-                  case "G54":
-                  case "G55": 
-                  case "G56": 
-                  case "G57": 
-                  case "G58":
-                  case "G59": 
-                    suffix = "Work Coordinates";
-                    break;
-                  case "G28":
-                  case "G30": 
-                    suffix = "Pre-defined Positions";
-                    break;
-                  case "G92": 
-                    suffix = "Coordinate Offset";
-                    break;
-                  case "TLO": 
-                    suffix = "Tool Length Offsets";
-                    break;
-                  case "PRB": 
-                    suffix = "Probing";
-                    break;
-                  default: 
-                    suffix = "??? unknown value ???";
-                }
-                $('#txtSerialMonitor').append( '\n< ' + (line + "                 ").substring(0,27) + " " + suffix);
-              }
-            });
-                break;
-              case "$G": 
-                $('#txtSerialMonitor').append( '\n< : ' + data);
-                tmp = data.substring(4);
-                parts = tmp.split(" ");
-                parts.forEach(function (modal) {  
-                  switch(modal){
-                    case "G0":
-                    case "G1":
-                    case "G2":
-                    case "G3":
-                    case "G38.2":
-                    case "G38.3":
-                    case "G38.4":
-                    case "G38.5":
-                    case "G80":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Motion Mode");
-                      break;
-                    case "G54":
-                    case "G55":
-                    case "G56":
-                    case "G57":
-                    case "G58":
-                    case "G59":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Coordinate System Selected");
-                      break;
-                    case "G17":
-                    case "G18":
-                    case "G19":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Plane Select");
-                      break;
-                    case "G20":
-                    case "G21":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Units");
-                      break;
-                    case "G90":
-                    case "G91":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Distance Mode");
-                      break;
-                    case "G91.1":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Arc IJK Mode");
-                      break;
-                    case "G93":
-                    case "G94":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Feed Rate Mode");
-                      break;
-                    case "M0":
-                    case "M1":
-                    case "M2":
-                    case "M30":
-                    case "G80":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Program Mode");
-                      break;
-                    case "M3":
-                    case "M4":
-                    case "M5":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Spindle State");
-                      break;
-                    case "M7":
-                    case "M8":
-                    case "M9":
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "Coolant State");
-                      break;
-                    default:
-                      $('#txtSerialMonitor').append( '\n< : ' + modal + " : " + "unknown");
-
-                  }
-                }); 
-
-
-
-                /*
-                [GC:G0 G54 G17 G21 G90 G94 M0 M5 M9 T0 S0.0 F500.0]
-
-                Modal Group	Member Words
-                  Motion Mode	G0, G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
-                  Coordinate System Select	G54, G55, G56, G57, G58, G59
-                  Plane Select	G17, G18, G19
-                  Distance Mode	G90, G91
-                  Arc IJK Distance Mode	G91.1
-                  Feed Rate Mode	G93, G94
-                  Units Mode	G20, G21
-                  Cutter Radius Compensation	G40
-                  Tool Length Offset	G43.1, G49
-                  Program Mode	M0, M1, M2, M30
-                  Spindle State	M3, M4, M5
-                  Coolant State	M7, M8, M9
-
-                */
-                break;
-              default:
-              lines = data.split('\n');
-                lines.forEach(function(line) {
-                  $('#txtSerialMonitor').append( '\n< : ' + line);
-                });
-                break;
-
-
-            }
-            //console.log('runCmd returned!');
-            //console.log('Command : ' + command);
-            //console.log('Response : ' + data);
-           
-            // split result into lines for human friendly viewing in monitor
-           
-      });
+      sendCmd(cntnt);
 
       var ins = true;
       for (var i = 0; i < ss.options.length; i++){
-        console.log(ss.options[i]);
+        if(debug) console.log(ss.options[i]);
         if(ss.options[i].text == cntnt){
           ins = false;
           break;
@@ -579,9 +482,9 @@
     function geth1Coords() {
         console.log("Cap 1 clicked");
         // document.getElementById("xpos").innerHTML
-        //console.log("pos x text = " + $('xpos').text);
-        //console.log("pos x value = " + $('xpos').value);
-        //console.log("pos x innerHTML= " + $('xpos').innerHTML);
+        if(debug) console.log("pos x text = " + $('xpos').text);
+        if(debug) console.log("pos x value = " + $('xpos').value);
+        if(debug) console.log("pos x innerHTML= " + $('xpos').innerHTML);
         
         
         document.getElementById("h1X").innerHTML =  document.getElementById("xpos").innerHTML
@@ -589,7 +492,7 @@
     }
 
     function geth2Coords() {
-      console.log("cap 2 Clicked");
+      if(debug) console.log("cap 2 Clicked");
       
       document.getElementById("h2X").innerHTML =  document.getElementById("xpos").innerHTML
       document.getElementById("h2Y").innerHTML = document.getElementById("ypos").innerHTML;

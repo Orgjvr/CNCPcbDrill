@@ -109,3 +109,14 @@ def openCamera(index):
     #return json.dumps(result)
     
     return "Done"#result
+
+
+@socketio.on('getDollarGMeanings', namespace='/sock')
+def getDollarGMeanings(code):
+    return gCodeGrbl.getDollarGMeanings(code)
+
+@socketio.on('getDollarHashMeanings', namespace='/sock')
+def getDollarHashMeanings(code):
+    return gCodeGrbl.getDollarHashMeanings(code)
+    
+

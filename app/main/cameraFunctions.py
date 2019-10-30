@@ -11,7 +11,6 @@ from .camera import Camera
 
 def get_cameras():
     print("cams funcs get cam")
-    #logging.basicConfig(level=logging.DEBUG)
     #index = 2
     arr = []
     for index in range(5):

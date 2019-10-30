@@ -9,10 +9,10 @@ from .. import serialFunctions
 
 import time
 
+
 '''
 @main.route('/getSerialDefault')
 def getSerialDefault(): 
-    #logging.basicConfig(level=logging.DEBUG)
 
     logging.info("hello world")
     global baudRate

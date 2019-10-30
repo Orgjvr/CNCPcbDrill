@@ -17,12 +17,12 @@ from ..classes import Job
 
 job = Job.Job()
 
+
 ALLOWED_EXTENSIONS = set(['drl', 'txt', 'xln'])
 
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/open_file', methods=['GET', 'POST'])
 def upload_file():
-    #logging.basicConfig(level=logging.DEBUG)
     if request.method == 'POST':
         print("POSTING")
         # check if the post request has the file part
@@ -103,7 +103,7 @@ def create_figure():
 
 @main.route('/uploads/<filename>')
 def uploaded_file(filename): 
-    #logging.basicConfig(level=logging.DEBUG)
+
     logging.debug("Building endpoint uploaded_file")
     #try:
     global colordict
