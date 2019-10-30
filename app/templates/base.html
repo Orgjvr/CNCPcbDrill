@@ -509,8 +509,17 @@
       h1Y = document.getElementById('h1Y').innerHTML;
       h2X = document.getElementById('h2X').innerHTML;
       h2Y = document.getElementById('h2Y').innerHTML;
-      socketio.emit('runProcess', h1X, h1Y, h2X, h2Y , function(response){
+      jobContext = document.getElementById('jobContext').value;
+      console.log("jobContext = " + jobContext )
 
+      // testing 
+      h1X = "100.234";
+      h1Y = "8.234";
+      h2X = "160.234";
+      h2Y = "80.543";
+
+        socket.emit('runProcess', h1X, h1Y, h2X, h2Y ,  function(response){
+        console.log('run Process (events.py returned : ' + response);
       });
 
     }

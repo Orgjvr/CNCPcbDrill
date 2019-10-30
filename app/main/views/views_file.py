@@ -1,19 +1,26 @@
-from flask import session, redirect, url_for, render_template, request, Response, flash
+from flask import session, redirect, url_for, render_template, request, Response, flash, Flask, g
 from .. import main
 #from flask import send_from_directory
 import os
 from werkzeug.utils import secure_filename
 import json
 import logging
+import jsonpickle
 from flask import current_app as app
 from .. import processFile
 from .. import propFunctions
+from .. import coreFunctions
+
 from collections import defaultdict
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import io
 from ..classes import Job
+
+
+
+
 
 job = Job.Job()
 
@@ -56,7 +63,37 @@ def upload_file():
             
             job.newJob(filepath)
           
-            return redirect(url_for('main.uploaded_file', filename=filename))
+            #NOTE:  @ORG 
+
+            #NOTE: ok , first test, after uploading the drill file, run the load the localhost:5000/test22  page - is shows that the Job instance (called job ) is still in scope...
+            #NOTE: but i can't figure out how to access this from the event fired by the process button 
+
+
+            #NOTE: this is to test the saving of the job class into a session variable  - we can't save objects in there so jsonpickle serializes the object 
+            #NOTE: this works in the immediate context  (below)
+            #print("the max distance is " + str(job.maxDistance))
+            #print('setting job session variable via json pickle ')
+            #session['job'] =  jsonpickle.encode(job)
+
+            #print("getting it back")
+            #newJob = jsonpickle.decode(session['job'])
+            #print("the max distance is " + str(newJob.maxDistance))
+
+            #NOTE: BUT ......
+            #NOTE:  if i call do an http get /test_session from browser - the session does not contain the job object
+
+            #NOTE: one last attempt / ok now really last ...  / this doesnt work as g is lost between requests  
+            '''
+            serializedJob = jsonpickle.encode(job)
+            g.serialized_job = serializedJob
+
+            if 'serialized_job' in  g:
+                print( "G has 'serialized_job'")
+            '''
+            #NOTE: only other thing i can think of is to save the serialized object (job) to an in mem DB or a file !!!
+            # and read the same db / file in events.py ( or later )
+
+            return redirect(location= url_for('main.uploaded_file', filename=filename))
           
     logging.debug("GETTING")
     return '''
@@ -101,7 +138,7 @@ def create_figure():
     return fig
 
 
-@main.route('/uploads/<filename>')
+@main.route('/uploads/<filename>', methods=['POST','GET'])
 def uploaded_file(filename): 
 
     logging.debug("Building endpoint uploaded_file")
@@ -128,6 +165,23 @@ def uploaded_file(filename):
         tool["holeCount"] = t.holeCount
         tool["color"] = colordict[str(t.toolNum)]
         toolCollection[int(t.toolNum)] = tool
+
+
+    '''
+    # try get job 
+    
+    #NOTE: ok this doesnt work as the g context is lost between requests 
+
+    # sjob = serializedJob
+    if('serialized_job' in g):
+        sjob = g.serialized_job
+        print("object was in g")
+    else:
+        print("object was NOT in g")
+        sjob = "failed"
+    '''
+    
+    # now pass to tempate 
     return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
     
 
@@ -141,3 +195,27 @@ def plot_png():
     print("plotting")
     return Response(output.getvalue(), mimetype='image/png')
 
+@main.route('/test_session')
+def test_session():
+
+    ans = ""
+    print("getting job copy from session")
+    newJob = jsonpickle.decode(session['job'])
+    print(" ok we got it - theoretically " )
+    if 'job' in session:
+        ans = "the job object is in the session"
+        print(ans)
+    else:
+        ans = "the job object is NOT in the session"
+        print(ans)
+    return Response(ans)
+
+
+@main.route('/test22')
+def test22():
+
+        retVal = ""
+        for t in job.tools:
+            retVal += "tool # " + str(t.toolNum + " = " + str(t.holeCount) + "<br/>")
+        
+        return Response(retVal)

@@ -9,23 +9,19 @@ import logging
 
 #from . import gCodeGrbl
 from . import propFunctions
+from .classes import Job
 
 from flask import current_app as app
 
+# job holder 
+global jj 
+jj = Job.Job()
 
-def getCncMoves():
-    #print('getting Moves from coreFunctions')
-    retVal = propFunctions.getDictionary('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
-    #retVal = propFunctions.getProperty('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
-    #print("returned = " + retVal)
-    #retVal = dict(json.loads(retVal))
-    #print('this is the moves')
-    print(retVal)
-    #print("this shhouold work")
-    print(retVal['coarse'])
-    #print("before this ")
-    return retVal 
+def setjj(job):
+    jj = job
 
+def getjj():
+    return jj
 
 def getUsedPorts():
     #print('getting Used Port from default.py')

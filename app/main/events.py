@@ -1,11 +1,13 @@
-from flask import session, Response
+from flask import session, Response, g
 from flask_socketio import emit, join_room, leave_room
+import jsonpickle
 from .. import socketio
 from . import serialFunctions 
 from . import cameraFunctions 
 from . import coreFunctions
 from . import propFunctions
 from . import gCodeGrbl
+from .classes import Job
 from .views import views_camera
 import json
 
@@ -60,8 +62,8 @@ def closeSerial():
 
 @socketio.on('getCncMoves', namespace='/sock')
 def getCncMoves():
-    print('gettting moves from events.py')
-    success = coreFunctions.getCncMoves()
+    print('Events.getCNCMoves : gettting moves from default.ini')
+    success = propFunctions.getDictionary('default', 'CNC_MOVES', '{"coarse":"10","normal":"1","fine":"0.1"}')
     return success
 
 @socketio.on('getUsedPorts', namespace='/sock')
@@ -120,3 +122,26 @@ def getDollarHashMeanings(code):
     return gCodeGrbl.getDollarHashMeanings(code)
     
 
+@socketio.on('runProcess', namespace = '/sock')
+def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
+    
+
+    newJobObject = jsonpickle.decode(jobContext)
+    return Response("Max Distance from runProcess and thawed job is " + str(newJobObject.maxDistance))
+
+    '''
+    #NOTE: @ORG
+    # NOTE: running this (by clicking on the process button) fails due to the session not containing the job object 
+    if 'job' in session:
+        #thisjob = session['job']
+        thisJob = jsonpickle.decode(session['job'])
+        md = thisJob.maxDistance
+        ans =  " job has " + str(md) + " maxDistance"
+    else:
+        ans = "job not in session"
+
+    #retVal =  Job.Job.getCNCcoords(h1X, h1Y, h2X, h2Y)
+    print('events.runProcess returned ')
+    print (ans)
+    return ans
+    '''

@@ -43,5 +43,11 @@ class Job:
 
         logging.info("# holes : %d, tools : %d, Hole1 : %d, Hole2 : %d"% (self.holes.__len__(), self.tools.__len__(), self.h1.holeNumber, self.h2.holeNumber))
 
+    @classmethod
+    def getCNCcoords(self, h1X, h1Y, h2X, h2Y):
+        print('in getCNCCoords')
+        print(' need to do something here ....')
+        return "back From job.py"
+
 
      
