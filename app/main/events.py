@@ -1,6 +1,6 @@
 from flask import session, Response, g
 from flask_socketio import emit, join_room, leave_room
-import jsonpickle
+#import jsonpickle
 from .. import socketio
 from . import serialFunctions 
 from . import cameraFunctions 
@@ -9,6 +9,7 @@ from . import propFunctions
 from . import gCodeGrbl
 from .classes import Job
 from .views import views_camera
+from .views import views_file
 import json
 
 @socketio.on('get3dPos', namespace='/sock')
@@ -123,11 +124,15 @@ def getDollarHashMeanings(code):
     
 
 @socketio.on('runProcess', namespace = '/sock')
-def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
+#def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
+def runProcess(h1X, h1Y, h2X, h2Y):
     
 
-    newJobObject = jsonpickle.decode(jobContext)
-    return Response("Max Distance from runProcess and thawed job is " + str(newJobObject.maxDistance))
+    #newJobObject = jsonpickle.decode(jobContext)
+    newJobObject = views_file.job
+    md = newJobObject.maxDistance
+    print("max="+str(md))
+    return ("Max Distance from runProcess and thawed job is " + str(md))
 
     '''
     #NOTE: @ORG
@@ -145,3 +150,5 @@ def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
     print (ans)
     return ans
     '''
+
+

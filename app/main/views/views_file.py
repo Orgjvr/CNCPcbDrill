@@ -5,7 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 import json
 import logging
-import jsonpickle
+#import jsonpickle
 from flask import current_app as app
 from .. import processFile
 from .. import propFunctions
