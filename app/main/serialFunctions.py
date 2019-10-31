@@ -221,10 +221,7 @@ def runCmd(cmd):
 
 
 def jog(code,isShift,isFine):
-
-
     logging.debug("in serialFunctions.jog")
-
     if serialIsOpen:
         global gcodeFlavor
         if(gcodeFlavor == "G"):
@@ -236,6 +233,19 @@ def jog(code,isShift,isFine):
         logging.debug("No Status - Port Is NOT open")
         return False
 
+
+def emergencyStop():
+    logging.debug("in serialFunctions.jog")
+    if serialIsOpen:
+        global gcodeFlavor
+        if(gcodeFlavor == "G"):
+            WriteToSerial("!")
+        else:
+            logging.debug("Error Gcode Flavour value is not valid")
+        return True
+    else:
+        logging.debug("No Status - Port Is NOT open")
+        return False
 
 
 
