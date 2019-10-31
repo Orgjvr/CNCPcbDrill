@@ -22,6 +22,9 @@ class Hole:
         self.furthestHole = 0
         self.furthestDist = 0
         self.isMetric = True
+        self.ZFX = 0.0
+        self.ZFY = 0.0
+
         Hole.hole_index[holeNum].append(self)
     
     @classmethod
@@ -64,6 +67,9 @@ class Hole:
         # first move the maxY to Y=0 axis 
         maxTranslatedY = maxY - minY
         self.zeroedAndFlippedPoint[1] = maxTranslatedY - translatedY
+        self.ZFX = self.zeroedAndFlippedPoint[0]
+        self.ZFY = self.zeroedAndFlippedPoint[1]
+
 
 
 def FindMaxDistanceBetweenHoles(holes):
