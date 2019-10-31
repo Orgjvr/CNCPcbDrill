@@ -72,6 +72,16 @@ def openSerialPort(portName,baud):
         gCodeGrbl.Wakeup()
     return serialIsOpen
 
+
+def GetCurrentOpenSerialPort():
+    global serialPort
+    if serialIsOpen:
+        return str(serialPort.port)    
+    else:
+        logging.debug("Serial Port Is NOT open")
+        return "None" 
+
+
 def flushInput():
   
     global serialPort
