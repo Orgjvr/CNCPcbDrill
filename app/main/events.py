@@ -124,10 +124,28 @@ def getDollarHashMeanings(code):
     return gCodeGrbl.getDollarHashMeanings(code)
     
 @socketio.on('emergencyStop', namespace = '/sock')
-#def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
 def emergencyStop(message):
     success = serialFunctions.emergencyStop()
     return success
+
+
+@socketio.on('isSerialPortOpen', namespace = '/sock')
+def isSerialPortOpen():
+    success = serialFunctions.isSerialPortOpen()
+    return success
+
+
+@socketio.on('getCurrentPortAndBaud', namespace = '/sock')
+def getCurrentPortAndBaud():
+    success = serialFunctions.getCurrentPortAndBaud()
+    return success
+
+
+@socketio.on('getCurrentCamera', namespace = '/sock')
+def getCurrentCamera():
+    success = cameraFunctions.getCurrentCamera()
+    return success
+
 
 @socketio.on('runProcess', namespace = '/sock')
 #def runProcess(h1X, h1Y, h2X, h2Y, jobContext):

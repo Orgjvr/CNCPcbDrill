@@ -156,9 +156,10 @@ def uploaded_file(filename):
     # now pass to tempate 
     return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
     
-@main.route('/continue')
+@main.route('/cont')
 def cont(): 
-    currentPort = serialFunctions.GetCurrentOpenSerialPort()
+    currentPortAndBaud = serialFunctions.getCurrentPortAndBaud()
+    currentPort = json.loads(currentPortAndBaud)["port"]
     print("Port=" + currentPort)
     return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort=currentPort)
 
@@ -172,6 +173,7 @@ def plot_png():
     FigureCanvas(fig).print_png(output)
     print("plotting")
     return Response(output.getvalue(), mimetype='image/png')
+
 
 @main.route('/test_session')
 def test_session():

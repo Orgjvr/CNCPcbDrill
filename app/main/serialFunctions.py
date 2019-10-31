@@ -73,13 +73,24 @@ def openSerialPort(portName,baud):
     return serialIsOpen
 
 
-def GetCurrentOpenSerialPort():
+def getCurrentPortAndBaud():
     global serialPort
     if serialIsOpen:
-        return str(serialPort.port)    
+        port=str(serialPort.port)
+        baud=str(serialPort.baudrate)
+        return json.dumps({'port':port,'baud':baud})    
     else:
         logging.debug("Serial Port Is NOT open")
         return "None" 
+
+
+def isSerialPortOpen():
+    global serialPort
+    if serialIsOpen:
+        return True
+    else:
+        logging.debug("Serial Port Is NOT open")
+        return False
 
 
 def flushInput():

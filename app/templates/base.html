@@ -31,14 +31,37 @@
         socket.on('connect', function() {
             socket.emit('joined', {});
             if(debug) console.log('Websocket connected!');
-            getSerialPorts();
-            getBaudrates();
-            getCameras();
+            // We need to see if machine is already connected to a serial port 
+            socket.emit('isSerialPortOpen', function(serialIsOpen){
+                if(debug) console.log('isSerialPortOpen returned!');
+                if(debug) console.log(serialIsOpen);
+                if (serialIsOpen == true) {
+                  //Serial is already open. Just get the current state and update web
+                  getCurrentPortAndBaud();
+                } else {
+                  //Serial is not yet open. Set up web from scratch
+                  getSerialPorts();
+                  getBaudrates();
+                  getUsedPort();
+                }
+            });
+
+            // We need to see if machine is already connected to a camera
+            socket.emit('isCameraOpen', function(cameraIsOpen){
+                if(debug) console.log('isCameraOpen returned!');
+                if (cameraIsOpen == true) {
+                  //Camera is already open. Just get the current state and update web
+                  getCurrentCamera();
+                } else {
+                  getCameras();
+                }
+            });
+
             if(debug) console.log('getting moves');
             getCncMoves();
             setInterval(mustPollPosition, 500);
             registerKeyDown();
-            getUsedPort();
+            
 
         });
         socket.on('grblResponse', function(data) {
@@ -221,6 +244,7 @@
       }
     }
 
+
     function disconnect_serial() {
         socket.emit('closeSerial', function(data) {
           if(debug) console.log('Serial status:');
@@ -240,6 +264,50 @@
         });
     }
         
+    
+    function getCurrentCamera() {
+      socket.emit('getCurrentCamera', function (data){
+        if(debug) console.log('getCurrentCamera');
+
+      });
+    }
+    
+
+    function getCurrentPortAndBaud() {
+      socket.emit('getCurrentPortAndBaud', function (data){
+        if(debug) console.log('getCurrentPort');
+        if(debug) console.log("Data=" + data);
+        if(debug) console.log("json = " + JSON.parse(data));
+        if(debug) console.log(port = JSON.parse(data).port);
+        if (data != "None") {
+          console.log("json = " + JSON.parse(data));
+          console.log(port = JSON.parse(data).port);
+          dd_val_port = JSON.parse(data).port
+          dd_val_baud = JSON.parse(data).baud
+          // We need to populate the port in the dropdown
+          dropdown = $('#cmbComPort');
+          dropdown.empty();
+          dropdown.append('<option selected="false" disabled>Choose serial port</option>');
+          dropdown.append('<option selected="true">'+dd_val_port+'</option>');
+          //dropdown.prop('selectedIndex', 0);
+          // Hide the connect button
+          document.getElementById("btnConnect").style.display = "none";
+          // Show the disconnect button
+          document.getElementById("btnDisconnect").style.display = "inline";
+          // Get the Baud
+          // Populate the baud
+          dd_baud = $('#cmbBaud');
+          dd_baud.empty();
+          dd_baud.append('<option selected="true">'+dd_val_baud+'</option>');
+          document.getElementById("cmbComPort").disabled=true;
+          document.getElementById("cmbBaud").disabled=true;
+          document.getElementById("btnCanJog").disabled=false;
+          document.getElementById("btnCanJog").innerText="Enable Jogging";
+        }
+      });
+    }
+
+
     function getUsedPort() {
       socket.emit('getUsedPorts', function (data){
         if(debug) console.log('getUsed');
