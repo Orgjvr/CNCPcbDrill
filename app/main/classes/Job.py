@@ -22,6 +22,10 @@ class Job:
         self.isTZ = False
         self.isLZ = False
         self.fileType = ""
+        self.CNChole1 = [-999.999,-999,999]
+        self.CNChole2 = [-999.999,-999,999]
+        self.CNCRadAngle = 0.0
+        self.PCBRadAngle = 0.0
 
 
     def newJob(self, inputFileName):
@@ -38,16 +42,27 @@ class Job:
         self.isTZ = False
         self.isLZ = False
         self.fileType = ""
+        self.CNChole1 = [-999.999,-999.999]
+        self.CNChole2 = [-999.999,-999,999]
+        self.CNCRadAngle = 0.0
+        self.PCBRadAngle = 0.0
 
         processFile.ReadFile(self)
 
+        # calculate angle between holes 
+        self.PCBRadAngle = math.atan2(self.h2.ZFY - self.h1.ZFY, self.h2.ZFX - self.h1.ZFX)
+
         logging.info("# holes : %d, tools : %d, Hole1 : %d, Hole2 : %d"% (self.holes.__len__(), self.tools.__len__(), self.h1.holeNumber, self.h2.holeNumber))
 
-    @classmethod
-    def getCNCcoords(self, h1X, h1Y, h2X, h2Y):
-        print('in getCNCCoords')
-        print(' need to do something here ....')
-        return "back From job.py"
+    def setCNCholes(self, h1X, h1Y, h2X, h2Y):
+        self.CNChole1 = float( h1X) , float (h1Y) 
+        self.CNChole2 = float (h2X) , float (h2Y)
+
+        # calculate angle between holes 
+        self.CNCRadAngle = math.atan2(self.CNChole2[1] - self.CNChole1[1], self.CNChole2[0] - self.CNChole1[1])
+        return self.CNCRadAngle
+
+    
 
 
      

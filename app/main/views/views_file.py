@@ -63,36 +63,6 @@ def upload_file():
             
             job.newJob(filepath)
           
-            #NOTE:  @ORG 
-
-            #NOTE: ok , first test, after uploading the drill file, run the load the localhost:5000/test22  page - is shows that the Job instance (called job ) is still in scope...
-            #NOTE: but i can't figure out how to access this from the event fired by the process button 
-
-
-            #NOTE: this is to test the saving of the job class into a session variable  - we can't save objects in there so jsonpickle serializes the object 
-            #NOTE: this works in the immediate context  (below)
-            #print("the max distance is " + str(job.maxDistance))
-            #print('setting job session variable via json pickle ')
-            #session['job'] =  jsonpickle.encode(job)
-
-            #print("getting it back")
-            #newJob = jsonpickle.decode(session['job'])
-            #print("the max distance is " + str(newJob.maxDistance))
-
-            #NOTE: BUT ......
-            #NOTE:  if i call do an http get /test_session from browser - the session does not contain the job object
-
-            #NOTE: one last attempt / ok now really last ...  / this doesnt work as g is lost between requests  
-            '''
-            serializedJob = jsonpickle.encode(job)
-            g.serialized_job = serializedJob
-
-            if 'serialized_job' in  g:
-                print( "G has 'serialized_job'")
-            '''
-            #NOTE: only other thing i can think of is to save the serialized object (job) to an in mem DB or a file !!!
-            # and read the same db / file in events.py ( or later )
-
             return redirect(location= url_for('main.uploaded_file', filename=filename))
           
     logging.debug("GETTING")

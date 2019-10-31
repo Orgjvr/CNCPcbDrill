@@ -11,6 +11,7 @@ from .classes import Job
 from .views import views_camera
 from .views import views_file
 import json
+import math
 
 @socketio.on('get3dPos', namespace='/sock')
 def get3dPos(message):
@@ -127,28 +128,22 @@ def getDollarHashMeanings(code):
 #def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
 def runProcess(h1X, h1Y, h2X, h2Y):
     
+    JobObject = views_file.job
 
-    #newJobObject = jsonpickle.decode(jobContext)
-    newJobObject = views_file.job
-    md = newJobObject.maxDistance
-    print("max="+str(md))
-    return ("Max Distance from runProcess and thawed job is " + str(md))
+    CNCRadAngle = JobObject.setCNCholes( float(h1X), float(h1Y), float(h2X) , float(h2Y))
+    CNCAngle = math.degrees(CNCRadAngle)
+    print("CNCRadAngle = %3.3f radians, and %3.3f degrees."% (CNCRadAngle, CNCAngle) )
 
-    '''
-    #NOTE: @ORG
-    # NOTE: running this (by clicking on the process button) fails due to the session not containing the job object 
-    if 'job' in session:
-        #thisjob = session['job']
-        thisJob = jsonpickle.decode(session['job'])
-        md = thisJob.maxDistance
-        ans =  " job has " + str(md) + " maxDistance"
-    else:
-        ans = "job not in session"
+    PCBRadAngle = JobObject.PCBRadAngle
+    PCBAngle = math.degrees(PCBRadAngle)
+    print("PCBRadAngle = %3.3f radians, and %3.3f degrees."% (PCBRadAngle, PCBAngle) )
 
-    #retVal =  Job.Job.getCNCcoords(h1X, h1Y, h2X, h2Y)
-    print('events.runProcess returned ')
-    print (ans)
-    return ans
-    '''
+    RotRadAngle = PCBRadAngle - CNCRadAngle
+    RotAngle = math.degrees(RotRadAngle)
+
+    print("Rotation = %3.3f radians, and %3.3f degrees."% (RotRadAngle, RotAngle) )
+
+    return ("Result Rotation Angle = %3.3f radians, and %3.3f degrees."% (RotRadAngle, RotAngle) )
+
 
 
