@@ -147,6 +147,15 @@
     }
     
 
+    function emergencyStop() {
+        if(debug) console.log('emergencyStop!');
+        socket.emit('emergencyStop', {}, function(data) {
+
+          if(debug) console.log('emergencyStop returned!');
+          if(debug) console.log(data);
+        });
+    }
+    
     function update_pos() {
         socket.emit('get3dPos', {}, function(data) {
 
@@ -530,6 +539,7 @@
 
 </head>
   <body>
+      <button id="btnSTOP" onclick="emergencyStop()" style="background-color:red;">Emergency STOP</button>
       <button onclick="getSerialPorts()">Refresh Ports</button>
       <select id="cmbComPort" > </select>
       <select id="cmbBaud" > </select>
