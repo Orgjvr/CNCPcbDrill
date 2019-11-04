@@ -125,21 +125,35 @@ def getDollarHashMeanings(code):
     return gCodeGrbl.getDollarHashMeanings(code)
     
 @socketio.on('emergencyStop', namespace = '/sock')
-#def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
 def emergencyStop(message):
     success = serialFunctions.emergencyStop()
     return success
+    
 
-# --------------------------------------------------------------------
-# Returns Anglle of Rotation difference between Drill file & CNC holes 
-# IN RADIANS 
-# --------------------------------------------------------------------
-@socketio.on('calcProcessRotation', namespace = '/sock')
-def runProcess(sh1X, sh1Y, sh2X, sh2Y):
-    h1X = float(sh1X)
-    h1Y = float(sh1Y)
-    h2X = float(sh2X)
-    h2Y = float(sh2Y)
+
+@socketio.on('isSerialPortOpen', namespace = '/sock')
+def isSerialPortOpen():
+    success = serialFunctions.isSerialPortOpen()
+    return success
+
+
+@socketio.on('getCurrentPortAndBaud', namespace = '/sock')
+def getCurrentPortAndBaud():
+    success = serialFunctions.getCurrentPortAndBaud()
+    return success
+
+
+@socketio.on('getCurrentCamera', namespace = '/sock')
+def getCurrentCamera():
+    success = cameraFunctions.getCurrentCamera()
+    return success
+
+
+@socketio.on('runProcess', namespace = '/sock')
+#def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
+def runProcess(h1X, h1Y, h2X, h2Y):
+    
+    JobObject = views_file.job
 
     JobObject = views_file.job
     logging.debug("Calculating CNC DATA -------------------------")

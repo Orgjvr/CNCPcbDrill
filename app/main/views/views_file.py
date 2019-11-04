@@ -10,6 +10,7 @@ from flask import current_app as app
 from .. import processFile
 from .. import propFunctions
 from .. import coreFunctions
+from .. import serialFunctions
 
 from collections import defaultdict
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -124,6 +125,7 @@ def uploaded_file(filename):
         print(e)
 
     #cncMove = dict(app.config.get('CNC_MOVES'))
+    global toolCollection
     toolCollection = dict()
     for t in job.tools:
         tool = dict()
@@ -138,6 +140,13 @@ def uploaded_file(filename):
     # now pass to tempate 
     return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='', job=job)
     
+@main.route('/cont')
+def cont(): 
+    currentPortAndBaud = serialFunctions.getCurrentPortAndBaud()
+    currentPort = json.loads(currentPortAndBaud)["port"]
+    print("Port=" + currentPort)
+    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort=currentPort)
+
 
 @main.route('/plot_png')
 def plot_png():
@@ -148,6 +157,7 @@ def plot_png():
     FigureCanvas(fig).print_png(output)
     print("plotting")
     return Response(output.getvalue(), mimetype='image/png')
+
 
 @main.route('/test_session')
 def test_session():
