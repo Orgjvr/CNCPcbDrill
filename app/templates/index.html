@@ -36,7 +36,30 @@
                     </tr>
                     <tr>
                         <td>
-                            <img src="{{ url_for('main.plot_png') }}" width="480" height="320">
+                            <img src="{{ url_for('main.plot_png') }}" width="432" height="288">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <table border="1" style="border-collapse: collapse; width:100%" >
+                                <tr>
+                                    <td rowspan="2" style="vertical-align: middle; text-align: center; font:caption; ">
+                                        Hole 1:
+                                    </td>
+                                    <td><span style="font:caption;font-weight: bold; ">&nbsp;X:&nbsp;</span><span id="PCBh1X" style="font: normal;">{{ '%3.2f'%(job.h1.zeroedAndFlippedPoint[0]) }}</span></td>
+
+                                    <td rowspan="2" style="vertical-align: middle; font:caption; text-align: center; ">
+                                        Hole 2:
+                                    </td>
+                                    <td><span style="font:caption;font-weight: bold; ">&nbsp;X:&nbsp;</span><span id="PCBh1X" style="font: normal;">{{ '%3.2f'%(job.h2.zeroedAndFlippedPoint[0]) }}</span></td>
+                                    <td><span style="font:caption;font-weight: bold; ">&nbsp;Angle:&nbsp;</span><span id="PCBAngle" style="font: normal;">{{ '%3.2f'%(degrees(job.PCBRadAngle)) }}</span></td> 
+                                </tr>
+                                <tr>
+                                    <td><span style="font:caption;font-weight: bold; ">&nbsp;Y:&nbsp;</span><span id="PCBh1Y" style="font: normal;">{{ '%3.2f'%(job.h1.zeroedAndFlippedPoint[1]) }}</span></td>
+                                    <td><span style="font:caption;font-weight: bold; ">&nbsp;Y:&nbsp;</span><span id="PCBh1Y" style="font: normal;">{{ '%3.2f'%(job.h2.zeroedAndFlippedPoint[1]) }}</span></td>
+                                    <td><span style="font:caption;font-weight: bold; ">&nbsp;Length:&nbsp;</span><span id="PCBLength" style="font: normal;">{{ '%3.2f'%(job.maxDistance) }}</span></td>
+                                </tr>
+                                </table>
                         </td>
                     </tr>
                 </table>

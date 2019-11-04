@@ -19,9 +19,6 @@ import io
 from ..classes import Job
 
 
-
-
-
 job = Job.Job()
 
 
@@ -137,22 +134,9 @@ def uploaded_file(filename):
         toolCollection[int(t.toolNum)] = tool
 
 
-    '''
-    # try get job 
-    
-    #NOTE: ok this doesnt work as the g context is lost between requests 
-
-    # sjob = serializedJob
-    if('serialized_job' in g):
-        sjob = g.serialized_job
-        print("object was in g")
-    else:
-        print("object was NOT in g")
-        sjob = "failed"
-    '''
-    
+   
     # now pass to tempate 
-    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='')
+    return render_template('index.html', toolCollection=toolCollection, sPorts=[], serialPort='', job=job)
     
 
 @main.route('/plot_png')

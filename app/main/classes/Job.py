@@ -55,11 +55,11 @@ class Job:
         logging.info("# holes : %d, tools : %d, Hole1 : %d, Hole2 : %d"% (self.holes.__len__(), self.tools.__len__(), self.h1.holeNumber, self.h2.holeNumber))
 
     def setCNCholes(self, h1X, h1Y, h2X, h2Y):
-        self.CNChole1 = float( h1X) , float (h1Y) 
-        self.CNChole2 = float (h2X) , float (h2Y)
+        self.CNChole1 = h1X , h1Y 
+        self.CNChole2 = h2X , h2Y
 
         # calculate angle between holes 
-        self.CNCRadAngle = math.atan2(self.CNChole2[1] - self.CNChole1[1], self.CNChole2[0] - self.CNChole1[1])
+        self.CNCRadAngle = math.atan2(h2Y-h1Y, h2X-h1X)
         return self.CNCRadAngle
 
     

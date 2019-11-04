@@ -12,6 +12,7 @@ from .views import views_camera
 from .views import views_file
 import json
 import math
+import logging
 
 @socketio.on('get3dPos', namespace='/sock')
 def get3dPos(message):
@@ -129,26 +130,46 @@ def emergencyStop(message):
     success = serialFunctions.emergencyStop()
     return success
 
-@socketio.on('runProcess', namespace = '/sock')
-#def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
-def runProcess(h1X, h1Y, h2X, h2Y):
-    
+# --------------------------------------------------------------------
+# Returns Anglle of Rotation difference between Drill file & CNC holes 
+# IN RADIANS 
+# --------------------------------------------------------------------
+@socketio.on('calcProcessRotation', namespace = '/sock')
+def runProcess(sh1X, sh1Y, sh2X, sh2Y):
+    h1X = float(sh1X)
+    h1Y = float(sh1Y)
+    h2X = float(sh2X)
+    h2Y = float(sh2Y)
+
     JobObject = views_file.job
-
-    CNCRadAngle = JobObject.setCNCholes( float(h1X), float(h1Y), float(h2X) , float(h2Y))
+    logging.debug("Calculating CNC DATA -------------------------")
+    logging.debug("calculating with H1: (%3.3f, %3.3f)"% (h1X, h1Y))
+    logging.debug("calculating with H2: (%3.3f, %3.3f)"% (h2X, h2Y))
+    
+    CNCRadAngle = JobObject.setCNCholes( h1X, h1Y, h2X , h2Y)
     CNCAngle = math.degrees(CNCRadAngle)
-    print("CNCRadAngle = %3.3f radians, and %3.3f degrees."% (CNCRadAngle, CNCAngle) )
+    logging.debug(" sanity check ------------------------------- calculate distance between holes on CNC")
+    CNCDistance =  math.sqrt( (h1X-h2X)**2 + (h1Y-h2Y)**2 )
+    logging.debug(" CNC Distance = %3.3f"% (CNCDistance))
+    logging.debug("CNCRadAngle = %3.3f radians, and %3.3f degrees."% (CNCRadAngle, CNCAngle) )
+    logging.debug("==========================================================")
 
+    # get distance & angles from Drill file ( after zero & flip )
     PCBRadAngle = JobObject.PCBRadAngle
     PCBAngle = math.degrees(PCBRadAngle)
-    print("PCBRadAngle = %3.3f radians, and %3.3f degrees."% (PCBRadAngle, PCBAngle) )
+    logging.debug("PCBRadAngle = %3.3f radians, and %3.3f degrees."% (PCBRadAngle, PCBAngle) )
 
     RotRadAngle = PCBRadAngle - CNCRadAngle
     RotAngle = math.degrees(RotRadAngle)
 
-    print("Rotation = %3.3f radians, and %3.3f degrees."% (RotRadAngle, RotAngle) )
+    logging.debug("Rotation = %3.3f radians, and %3.3f degrees."% (RotRadAngle, RotAngle) )
 
-    return ("Result Rotation Angle = %3.3f radians, and %3.3f degrees."% (RotRadAngle, RotAngle) )
+    logging.debug("hole 1 X: %3.3f  Y: %3.3f  "% (JobObject.h1.zeroedAndFlippedPoint[0], JobObject.h1.zeroedAndFlippedPoint[1]))
+    logging.debug("hole 2 X: %3.3f  Y: %3.3f  "% (JobObject.h2.zeroedAndFlippedPoint[0], JobObject.h2.zeroedAndFlippedPoint[1]))
+    
+    logging.debug("==========================================================")
+
+    return RotRadAngle
 
 
 

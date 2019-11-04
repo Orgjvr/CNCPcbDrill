@@ -2,6 +2,7 @@ from flask import Flask , session  #, render_template
 from flask_socketio import SocketIO  #, emit
 import logging
 import atexit
+import math
 
 socketio = SocketIO()
 
@@ -31,6 +32,15 @@ def create_app(debug=False):
 
 
     socketio.init_app(app)
+
+
+
+    @app.context_processor
+    def utility_processor():
+        def degrees(radians):
+            return math.degrees(radians)
+        return dict(degrees=degrees)
+
 
 
     return app
