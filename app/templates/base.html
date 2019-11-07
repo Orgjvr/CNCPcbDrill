@@ -557,23 +557,30 @@
 
 
     function geth1Coords() {
-        console.log("Cap 1 clicked");
+        //console.log("Cap 1 clicked");
         // document.getElementById("xpos").innerHTML
-        if(debug) console.log("pos x text = " + $('xpos').text);
-        if(debug) console.log("pos x value = " + $('xpos').value);
-        if(debug) console.log("pos x innerHTML= " + $('xpos').innerHTML);
+        //if(debug) console.log("pos x text = " + $('xpos').text);
+        //if(debug) console.log("pos x value = " + $('xpos').value);
+        //if(debug) console.log("pos x innerHTML= " + $('xpos').innerHTML);
         
         
         document.getElementById("h1X").innerHTML =  document.getElementById("xpos").innerHTML
         document.getElementById("h1Y").innerHTML = document.getElementById("ypos").innerHTML;
+
+        // testing only 
+        //document.getElementById("h1X").innerHTML =  "178.34";
+        //document.getElementById("h1Y").innerHTML = "64.76";
     }
 
     function geth2Coords() {
-      if(debug) console.log("cap 2 Clicked");
+      //if(debug) console.log("cap 2 Clicked");
       
       document.getElementById("h2X").innerHTML =  document.getElementById("xpos").innerHTML
       document.getElementById("h2Y").innerHTML = document.getElementById("ypos").innerHTML;
  
+      //document.getElementById("h2X").innerHTML  = "338.967";
+      //document.getElementById("h2Y").innerHTML = "-11.305";
+
     }
 
     function setZHeight() {
@@ -582,21 +589,35 @@
     }
 
     function runProcess() {
+      debug=true;
       h1X = document.getElementById('h1X').innerHTML;
       h1Y = document.getElementById('h1Y').innerHTML;
       h2X = document.getElementById('h2X').innerHTML;
       h2Y = document.getElementById('h2Y').innerHTML;
-
+      
       // testing 
-      h1X = "178.34";
-      h1Y = "64.76";
-      h2X = "338.967";
-      h2Y = "-11.305";
+      h1X = "43.4";
+      h1Y = "165.899";
+      h2X = "179";
+      h2Y = "53.099";
       socket.emit('calcProcessRotation', h1X, h1Y, h2X, h2Y ,  function(response){
-      if(debug) console.log('calcProcessRotation (events.py returned : ' + response);
+        console.log('calcProcessRotation (events.py returned : ' + response);
+        var obj = JSON.parse(response);
+        document.getElementById("spnCNCRotAngle").innerHTML = obj["RotAngle"];
+        document.getElementById("spnCNCDist").innerHTML = obj["CNCDistance"];
+        document.getElementById("spnGCodeAngle").innerHTML = obj["GCodeRotation"];
+        document.getElementById('cncplotpng').src = '/plot_cnc_png';
+        document.getElementById('cncplotpng').style.visibility = "visible";
+
         
       });
+      
+      debug=false;
 
+    }
+
+    function ab2str(buf) {
+      return String.fromCharCode.apply(null, new Uint16Array(buf));
     }
 </script>
 

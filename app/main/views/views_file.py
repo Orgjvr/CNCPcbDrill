@@ -105,6 +105,34 @@ def create_figure():
 
     return fig
 
+def create_cnc_figure():
+    print("creating Figure.........")
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    #fig = plt.figure(figsize=(10,8))
+    
+    colordict = propFunctions.getDictionary('default', 'COLOR_DICT', '')
+
+    # plot hole 1 
+    #axis.plot(10, 10, color="red", markersize=10, marker='o')
+    axis.plot(job.CNChole1[0], job.CNChole1[1], color="red", markersize=3, marker='o')
+    # plot hole 2 
+    #axis.plot(100, 100, color="red", markersize=10, marker='o')
+    axis.plot(job.CNChole2[0], job.CNChole2[1], color="red", markersize=3, marker='o')
+    
+    print(job.CNChole1)
+    print(job.CNChole2)
+
+    axis.plot( (job.CNChole1[0], job.CNChole2[0]),(job.CNChole1[1], job.CNChole2[1]), linewidth=2, color='red')
+
+    # plot 0,0 axis    
+    axis.plot( (0, 0), (5, -5), linewidth=1, color='black')
+    axis.plot( (5, -5), (0, 0), linewidth=1, color='black')
+
+
+    return fig
+
+
 
 @main.route('/uploads/<filename>', methods=['POST','GET'])
 def uploaded_file(filename): 
@@ -157,6 +185,17 @@ def plot_png():
     FigureCanvas(fig).print_png(output)
     print("plotting")
     return Response(output.getvalue(), mimetype='image/png')
+
+@main.route('/plot_cnc_png')
+def plot_cnc_png():
+    print('in Plot_cnc_png')
+    fig_cnc = create_cnc_figure()
+    print('after create_figure')
+    output_cnc = io.BytesIO()
+    FigureCanvas(fig_cnc).print_png(output_cnc)
+    print("plotting cnc_fig")
+    return Response(output_cnc.getvalue(), mimetype='image/png')
+
 
 
 @main.route('/test_session')

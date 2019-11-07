@@ -10,7 +10,7 @@ class Hole:
     def __init__(self, holeNum, point, toolNum, size, isMetric):
         self.toolNum = toolNum
         self.size = size
-        self.filePoint = point
+        self.filePoint = point      
         self.rotationAngle = 0
         self.isHoleZero = False
         self.isHole2 = False
@@ -24,8 +24,13 @@ class Hole:
         self.isMetric = True
         self.ZFX = 0.0
         self.ZFY = 0.0
+        self.angleFromZero = -999.999
+        self.distanceFromZero = -999.999
+        self.CNCDrillPosition = -999.999, -999.999
 
         Hole.hole_index[holeNum].append(self)
+
+        
     
     @classmethod
     def find_by_number(self, num):
@@ -56,6 +61,14 @@ class Hole:
         qx = math.cos(angle) * (px) - math.sin(angle) * (py)
         qy = math.sin(angle) * (px) + math.cos(angle) * (py)
         self.rotatedPoint = qx,qy
+
+    def calculateDistanceFromZero(self):
+        self.distanceFromZero =  math.sqrt( (0-self.zeroedAndFlippedPoint[0])**2 + (0-self.zeroedAndFlippedPoint[1])**2 )
+
+    def calculateAngleFromZero(self):
+        zX, zY  = self.zeroedAndFlippedPoint
+        self.angleFromZero = math.atan2(zY, zX)
+
  
         
     def translateAndFlipHole(self, minY, maxY, minX):
@@ -69,6 +82,11 @@ class Hole:
         self.zeroedAndFlippedPoint[1] = maxTranslatedY - translatedY
         self.ZFX = self.zeroedAndFlippedPoint[0]
         self.ZFY = self.zeroedAndFlippedPoint[1]
+
+        # calc angle & distance from Zero
+        self.calculateDistanceFromZero()
+        self.calculateAngleFromZero()
+        
 
 
 
@@ -104,25 +122,4 @@ def CalculateDistanceBetweenHoles(h0, h1):
     return math.sqrt( (h0.filePoint[0]-h1.filePoint[0])**2 + (h0.filePoint[1]-h1.filePoint[1])**2 )
 
 
-''' 
-#NOTE: removed these as the hole class has methods for this anyway 
-
-def rotateX(px, py, angle):
-    """
-    Rotate a point counterclockwise by a given angle around a given origin.
-    The angle should be given in radians.
-    """
-    #radAngle = math.radians(angle)
     
-    qx = math.cos(angle) * (px) - math.sin(angle) * (py)
-    return qx
-
-def rotateY(px, py, angle):
-    """
-    Rotate a point counterclockwise by a given angle around a given origin.
-    The angle should be given in radians.
-    """
-    qy = math.sin(angle) * (px) + math.cos(angle) * (py)
-    return qy
-
-'''

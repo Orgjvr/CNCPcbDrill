@@ -79,18 +79,28 @@
         <tr>
             <td>
                 <div id="setZdiv">
-                    <button id="btnSetZ" onclick="setZHeight()" >Cap 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">Z:</label>&nbsp;&nbsp;<label id="zHeight" style="font:caption;font-size: larger;">000.000 </label>
+                    <button id="btnSetZ" onclick="setZHeight()" >Grab Z Height</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">Z:</label>&nbsp;&nbsp;<label id="zHeight" style="font:caption;font-size: larger;">000.000 </label>
                 </div>
  
                 <div id="capBtns2">
-                    <button id="btnCap1" onclick="geth1Coords()" >Cap 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h1X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h1Y" style="font:caption;font-size: larger;" >000.000</label>
+                    <button id="btnCap1" onclick="geth1Coords()" >Grab Hole 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h1X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h1Y" style="font:caption;font-size: larger;" >000.000</label>
                 </div>
                 <div id="capBtns2">
-                    <button id="btnCap1" onclick="geth2Coords()" >Cap 2</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h2X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h2Y" style="font:caption;font-size: larger;" >000.000</label>
+                    <button id="btnCap1" onclick="geth2Coords()" >Grab Hole 2</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h2X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h2Y" style="font:caption;font-size: larger;" >000.000</label>
                 </div>
                 <div id="btnProcess">
-                    <button id="btnProcess" onclick="runProcess()" >Process</button>
-                    <input type="hidden" id="jobContext" name="jobContext" value="{'{ job doesnt exist !!!! }''}">
+                    <button id="btnProcess" onclick="runProcess()" >Analyze</button>
+                    <!-- <input type="hidden" id="jobContext" name="jobContext" value="{'{ job doesnt exist !!!! }''}"> -->
+
+                </div>
+                <div>
+                    <table border="1" style="border-collapse: collapse;">
+                        <tr>
+                            <td><label label-for="spnCNCRotAngle">CNC Rotation: </label> <span id="spnCNCRotAngle" style="font:caption;"></span></td>
+                            <td><label label-for="spnCNCDist">CNC Distance: </label> <span id="spnCNCDist" style="font:caption;"></span></td>
+                            <td><label label-for="spnGCodeAngle">Gcode Rotation: </label> <span id="spnGCodeAngle" style="font:caption;"></span></td>
+                        </tr>
+                    </table>
                 </div>
             </td>
         </tr>
@@ -180,18 +190,24 @@
                     </tr>
                 </table>
             </td>
-            <td style="vertical-align: bottom; width: 500px; padding: 10px;">
-                <table border="0">
-                    <tr>
-                        <td style="font:small-caption; text-align: center; " >Serial Monitor</td>
-                    </tr>
+            <td style="vertical-align: top; width: 500px; padding: 10px;">
+                <div id="divSerialMonitor" style="visibility:collapse;">
+                    <table border="0">
+                        <tr>
+                            <td style="font:small-caption; text-align: center; " >Serial Monitor</td>
+                        </tr>
 
-                    <tr>
-                        <td style="text-align: center;">
-                            <textarea id="txtSerialMonitor" style="font-family: monospace; font-size: 10px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 10px; width: 100%;" cols="80" rows=30></textarea>
-                        </td>
-                    </tr>
-                </table>
+                        <tr>
+                            <td style="text-align: center;">
+                                <textarea id="txtSerialMonitor" style="font-family: monospace; font-size: 10px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 10px; width: 100%;" cols="80" rows=30></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="cncRender" style="vertical-align: top;">
+                        <span id="cncSpan" ></span>
+                        <img id="cncplotpng" width="432" height="288" style="visibility: collapse; ">
+                </div>
             </td>
         </tr>
         </table>
