@@ -18,6 +18,8 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import io
 from ..classes import Job
+from ..classes import Hole
+
 
 
 job = Job.Job()
@@ -109,25 +111,30 @@ def create_cnc_figure():
     print("creating Figure.........")
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
-    #fig = plt.figure(figsize=(10,8))
     
     colordict = propFunctions.getDictionary('default', 'COLOR_DICT', '')
 
-    # plot hole 1 
-    #axis.plot(10, 10, color="red", markersize=10, marker='o')
+    # CNCHole1 & 2
     axis.plot(job.CNChole1[0], job.CNChole1[1], color="red", markersize=3, marker='o')
-    # plot hole 2 
-    #axis.plot(100, 100, color="red", markersize=10, marker='o')
     axis.plot(job.CNChole2[0], job.CNChole2[1], color="red", markersize=3, marker='o')
     
-    print(job.CNChole1)
-    print(job.CNChole2)
-
+    # line between the points
+    # NOTE: the line needs ( in this case? ) and array of X points followed by an array of Y points
     axis.plot( (job.CNChole1[0], job.CNChole2[0]),(job.CNChole1[1], job.CNChole2[1]), linewidth=2, color='red')
 
     # plot 0,0 axis    
+    # so that graphs expands to show orientations 
     axis.plot( (0, 0), (5, -5), linewidth=1, color='black')
     axis.plot( (5, -5), (0, 0), linewidth=1, color='black')
+
+    # next calculate location of PCB 0,0 
+    axis.plot(job.CNC_PCB_ORIGIN[0], job.CNC_PCB_ORIGIN[1], color="blue", markersize=3, marker='o')
+
+    for thisHole in job.holes:
+        axis.plot(thisHole.CNCDrillPosition[0], thisHole.CNCDrillPosition[1], color="blue", markersize=3, marker='o')
+
+    
+
 
 
     return fig

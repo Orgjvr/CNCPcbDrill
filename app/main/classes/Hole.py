@@ -69,7 +69,19 @@ class Hole:
         zX, zY  = self.zeroedAndFlippedPoint
         self.angleFromZero = math.atan2(zY, zX)
 
- 
+    def calculateCNCPoint(self, CNCOrigin, RotationAngle):
+
+
+        CNC_X = CNCOrigin[0] + (self.distanceFromZero * math.cos(self.angleFromZero + RotationAngle))
+        CNC_Y = CNCOrigin[1] + (self.distanceFromZero * math.sin(self.angleFromZero + RotationAngle))
+
+        print(CNC_X)
+        print(CNC_Y)
+
+        self.CNCDrillPosition = CNC_X, CNC_Y
+
+
+
         
     def translateAndFlipHole(self, minY, maxY, minX):
         # move to X = 0 axis
@@ -117,7 +129,7 @@ def FindMaxDistanceBetweenHoles(holes):
         #print("h0 x %3.3f      h1 x %3.3f  "% ( h0.zeroedAndFlippedPoint[0],h1.zeroedAndFlippedPoint[0] ))
 
     return h0, h1, maxDistance
-
+    
 def CalculateDistanceBetweenHoles(h0, h1):
     return math.sqrt( (h0.filePoint[0]-h1.filePoint[0])**2 + (h0.filePoint[1]-h1.filePoint[1])**2 )
 

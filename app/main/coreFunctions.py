@@ -13,16 +13,6 @@ from .classes import Job
 
 from flask import current_app as app
 
-# job holder 
-global jj 
-jj = Job.Job()
-
-def setjj(job):
-    jj = job
-
-def getjj():
-    return jj
-
 def getUsedPorts():
     #print('getting Used Port from default.py')
     port = propFunctions.getProperty('personal', 'COM_DEFAULT_PORT', '')
