@@ -120,22 +120,43 @@ def create_cnc_figure():
     
     # line between the points
     # NOTE: the line needs ( in this case? ) and array of X points followed by an array of Y points
-    axis.plot( (job.CNChole1[0], job.CNChole2[0]),(job.CNChole1[1], job.CNChole2[1]), linewidth=2, color='red')
+    axis.plot( (job.CNChole1[0], job.CNChole2[0]),(job.CNChole1[1], job.CNChole2[1]), linewidth=1, color='red')
 
     # plot 0,0 axis    
     # so that graphs expands to show orientations 
-    axis.plot( (0, 0), (5, -5), linewidth=1, color='black')
-    axis.plot( (5, -5), (0, 0), linewidth=1, color='black')
+    #axis.plot( (0, 0), (5, -5), linewidth=1, color='black')
+    #axis.plot( (5, -5), (0, 0), linewidth=1, color='black')
 
     # next calculate location of PCB 0,0 
-    axis.plot(job.CNC_PCB_ORIGIN[0], job.CNC_PCB_ORIGIN[1], color="blue", markersize=3, marker='o')
+    axis.plot(job.CNC_PCB_ORIGIN[0], job.CNC_PCB_ORIGIN[1], color="green", markersize=1, marker='o')
+
+    axis.plot( (job.CNC_PCB_ORIGIN[0], job.CNC_PCB_ORIGIN[0]), (job.CNC_PCB_ORIGIN[1] + 5, job.CNC_PCB_ORIGIN[1]-5), linewidth=1, color='green')
+    axis.plot( (job.CNC_PCB_ORIGIN[0] + 5, job.CNC_PCB_ORIGIN[0]-5), (job.CNC_PCB_ORIGIN[1], job.CNC_PCB_ORIGIN[1]), linewidth=1, color='green')
+
+    maxX = 0.0
+    maxY = 0.0
+    minX = 999
+    minY = 999
 
     for thisHole in job.holes:
-        axis.plot(thisHole.CNCDrillPosition[0], thisHole.CNCDrillPosition[1], color="blue", markersize=3, marker='o')
+        axis.plot(thisHole.CNCDrillPosition[0], thisHole.CNCDrillPosition[1], color="blue", markersize=1, marker='o')
+        if(thisHole.CNCDrillPosition[0] > maxX): 
+            maxX = thisHole.CNCDrillPosition[0]
+        if(thisHole.CNCDrillPosition[1] > maxY): 
+            maxY = thisHole.CNCDrillPosition[1]
+        if(thisHole.CNCDrillPosition[0] < minX): 
+            minX = thisHole.CNCDrillPosition[0]
+        if(thisHole.CNCDrillPosition[1] < minY): 
+            minY = thisHole.CNCDrillPosition[1]
 
+    # plot max markers to try and square image 
+    if(maxX < maxY):
+        maxX = maxY
+    if(minX > minY):
+        minX = minY
+    axis.plot(maxX, maxX , color="green", markersize=1, marker='o')
+    axis.plot(minX, minX , color="green", markersize=1, marker='o')
     
-
-
 
     return fig
 

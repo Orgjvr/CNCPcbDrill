@@ -96,14 +96,16 @@ class Job:
         print(" Gcode Angle to Zero : %3.3f" %( math.degrees(GCodeAngleToZero)))
 
         holeDistanceToZero = self.h1.distanceFromZero
-        PcbOriginOnCNC_X = self.CNChole1[0] + ( holeDistanceToZero * math.cos(GCodeAngleToZero))
-        PcbOriginOnCNC_Y = self.CNChole1[1] + ( holeDistanceToZero * math.sin(GCodeAngleToZero))
+        PcbOriginOnCNC_X = self.CNChole1[0] + ( holeDistanceToZero * (self.CNCScale/100) * math.cos(GCodeAngleToZero))
+        PcbOriginOnCNC_Y = self.CNChole1[1] + ( holeDistanceToZero * (self.CNCScale/100) * math.sin(GCodeAngleToZero))
         
         self.CNC_PCB_ORIGIN = PcbOriginOnCNC_X, PcbOriginOnCNC_Y
 
+        # testing 
+        #self.GCodeRotation = math.radians(-90)
 
         for thisHole in self.holes:
-            thisHole.calculateCNCPoint(self.CNC_PCB_ORIGIN, self.GCodeRotation)
+            thisHole.calculateCNCPoint(self.CNC_PCB_ORIGIN, self.GCodeRotation, self.CNCScale)
 
 
         return self.CNCRadAngle

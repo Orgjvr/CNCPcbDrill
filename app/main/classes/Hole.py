@@ -69,11 +69,11 @@ class Hole:
         zX, zY  = self.zeroedAndFlippedPoint
         self.angleFromZero = math.atan2(zY, zX)
 
-    def calculateCNCPoint(self, CNCOrigin, RotationAngle):
+    def calculateCNCPoint(self, CNCOrigin, RotationAngle, scale):
 
 
-        CNC_X = CNCOrigin[0] + (self.distanceFromZero * math.cos(self.angleFromZero + RotationAngle))
-        CNC_Y = CNCOrigin[1] + (self.distanceFromZero * math.sin(self.angleFromZero + RotationAngle))
+        CNC_X = CNCOrigin[0] + (self.distanceFromZero * (scale/100) * math.cos(self.angleFromZero + RotationAngle))
+        CNC_Y = CNCOrigin[1] + (self.distanceFromZero * (scale/100) * math.sin(self.angleFromZero + RotationAngle))
 
         print(CNC_X)
         print(CNC_Y)
