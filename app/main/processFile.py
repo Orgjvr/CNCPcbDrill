@@ -92,7 +92,7 @@ def ReadFile(job):
                             decs = p.split(".")
                             job.intDigits = decs[0].__len__()
                             job.decDigits = decs[1].__len__()
-                            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (fileType, intDigits, decDigits))
+                            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (job.fileType, job.intDigits, job.decDigits))
 
                 job.isMetric = True
                 logging.debug("Found metric")

@@ -139,7 +139,7 @@ def create_cnc_figure():
     minY = 999
 
     for thisHole in job.holes:
-        axis.plot(thisHole.CNCDrillPosition[0], thisHole.CNCDrillPosition[1], color="blue", markersize=1, marker='o')
+        axis.plot(thisHole.CNCDrillPosition[0], thisHole.CNCDrillPosition[1], color="blue", markersize=0.5, marker='o')
         if(thisHole.CNCDrillPosition[0] > maxX): 
             maxX = thisHole.CNCDrillPosition[0]
         if(thisHole.CNCDrillPosition[1] > maxY): 
