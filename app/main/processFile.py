@@ -90,9 +90,10 @@ def ReadFile(job):
                     for p in parts:
                         if "0.0" in p:
                             decs = p.split(".")
-                            job.intDigits = decs[0].__len__()
-                            job.decDigits = decs[1].__len__()
-                            logging.debug(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (job.fileType, job.intDigits, job.decDigits))
+                            print(" the first part of the decs is [%s], second = [%s]"% (decs[0], decs[1]))
+                            job.intDigits = decs[0].strip().__len__()
+                            job.decDigits = decs[1].strip().__len__()
+                            print(" FileType = %s, Format is intDigits : %d , decDigits : %d"% (job.fileType, job.intDigits, job.decDigits))
 
                 job.isMetric = True
                 logging.debug("Found metric")
@@ -127,6 +128,7 @@ def ReadFile(job):
                 # we have a hole 
                 parts = x.split("Y")
                 xpart = parts[0][1:(1+job.intDigits+job.decDigits)]
+                
                 ypart = parts[1]
                 if job.isTZ:
                     xval = float(xpart)/(10**job.decDigits)
@@ -135,6 +137,10 @@ def ReadFile(job):
                     #Thus it must be isLZ
                     xval = float(xpart[0:job.intDigits]+"."+xpart[job.intDigits:job.intDigits+job.decDigits])
                     yval = float(ypart[0:job.intDigits]+"."+ypart[job.intDigits:job.intDigits+job.decDigits])
+
+                print("first Part = %s, second = %s, final = %3.3f"% (parts[0],xpart, xval))
+                
+
                 filePoint = xval, yval
 
                 # igoring vxal == maxX as it will not change anything 

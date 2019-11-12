@@ -99,7 +99,8 @@ def create_figure():
             axis.plot(px, py, color=colordict[str(h.toolNum)],markersize=(h.size)*2 ,marker='o')
      
     #NOTE: dont know why these points have to be swopped!!! 
-    axis.plot( job.h2.zeroedAndFlippedPoint,job.h1.zeroedAndFlippedPoint, linewidth=2, color='blue')
+    #axis.plot( job.h2.zeroedAndFlippedPoint,job.h1.zeroedAndFlippedPoint, linewidth=2, color='blue')
+    axis.plot( (job.h1.zeroedAndFlippedPoint[0],job.h2.zeroedAndFlippedPoint[0]),(job.h1.zeroedAndFlippedPoint[1],job.h2.zeroedAndFlippedPoint[1]), linewidth=2, color='blue')
 
     axis.text(job.h1.zeroedAndFlippedPoint[0],job.h1.zeroedAndFlippedPoint[1], ' Hole 1',size=15) 
     axis.text(job.h2.zeroedAndFlippedPoint[0],job.h2.zeroedAndFlippedPoint[1], ' Hole 2',size=15)
