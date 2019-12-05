@@ -3,6 +3,8 @@ from collections import defaultdict
 from .classes import Hole
 from .classes import Tool
 from .classes import Job
+from .views import views_file
+
 
 #def ReadFile(job):
 #    job.h1, job.h2, job.maxDistance = ReadFile(job.inputFilename, job.tools, job.holes)
@@ -138,7 +140,7 @@ def ReadFile(job):
                     xval = float(xpart[0:job.intDigits]+"."+xpart[job.intDigits:job.intDigits+job.decDigits])
                     yval = float(ypart[0:job.intDigits]+"."+ypart[job.intDigits:job.intDigits+job.decDigits])
 
-                print("first Part = %s, second = %s, final = %3.3f"% (parts[0],xpart, xval))
+                #print("first Part = %s, second = %s, final = %3.3f"% (parts[0],xpart, xval))
                 
 
                 filePoint = xval, yval
@@ -167,6 +169,8 @@ def ReadFile(job):
 
     #Done reading file.         
     f.close()
+
+    job.numHoles = holeNum
 
     #Sanities
     if job.isInch and job.isMetric:
@@ -201,4 +205,21 @@ def ReadFile(job):
     
     logging.info("Max Distance is between hole: %d and %d with a distance of %f"% (job.h1.holeNumber, job.h2.holeNumber, job.maxDistance))
 
+def generateGcode():
+    jobObject = views_file.job
+    # output html String 
+    outString = ""
 
+    for h in jobObject.holes:
+        # for now only get 3mm holes 
+        if h.size == 3.0:
+            # add hole to html
+            outString += "G0 X%3.3f Y%3.3f Z%3.3f F3000 \n"% (h.CNCDrillPosition[0], h.CNCDrillPosition[1], jobObject.CNC_SAFE_HEIGHT)
+            outString += "G0 Z%3.3f F500 \n"% (jobObject.CNC_SAFE_HEIGHT - jobObject.CNC_DRILL_DEPTH)
+            outString += "G0 Z%3.3f F3000 \n"% (jobObject.CNC_SAFE_HEIGHT)
+            outString += "\n"
+            outString += "G0 X%3.3f Y%3.3f Z%3.3f F3000 \n"% (h.CNCDrillPosition[0], h.CNCDrillPosition[1], jobObject.CNC_SAFE_HEIGHT)
+            outString += "G0 Z%3.3f F500 \n"% (jobObject.CNC_SAFE_HEIGHT - jobObject.CNC_DRILL_DEPTH)
+            outString += "G0 Z%3.3f F3000 \n"% (jobObject.CNC_SAFE_HEIGHT)
+            outString += "\n"
+    return outString

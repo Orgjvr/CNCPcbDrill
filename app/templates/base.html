@@ -1,4 +1,3 @@
-
 <!doctype html>
 <head>
 <title>Upload new File</title>
@@ -15,13 +14,17 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <!- -  -->
 <script src="{{ url_for('static', filename='js/socket.io-1.3.6.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror.js') }}"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/night.css') }}">
 
 
 <script type="text/javascript" charset="utf-8">
     var socket;
     var GrblState = "IDLE";  // Idle / Running
     var moveStateFine = false;
-
+    
     // DEBUG true / false
     var debug = false;
 
@@ -166,6 +169,38 @@
               break;
           }
           return false;
+      }
+      else{
+        
+        var lineNum = parseInt(document.getElementById('lineNumber').innerHTML.trim());
+        switch(e.code){
+          case "ArrowRight":
+            var oldNum = lineNum;
+            lineNum = lineNum + 1;
+            document.getElementById('lineNumber').innerHTML = lineNum;
+            editor.setSelection( {line:lineNum, ch:0}, {line:lineNum, ch:100}, {scroll:true});
+            //editor.setLineClass(lineNum, 'robzColor', 'robzBackground');
+            editor.addLineClass(lineNum, 'wrap', 'robzColor');
+            editor.addLineClass(lineNum, 'background', 'robzBackground');
+            editor.removeLineClass(oldNum, 'background', 'robzBackground');
+            editor.removeLineClass(oldNum, 'wrap', 'robzColor');
+            editor.scrollIntoView({line:lineNum, char:0}, 130);
+            break;
+
+        
+        case "ArrowLeft":
+            var oldNum = lineNum;
+            lineNum = lineNum - 1;
+            document.getElementById('lineNumber').innerHTML = lineNum;
+            editor.setSelection( {line:lineNum, ch:0}, {line:lineNum, ch:100}, {scroll:true});
+            //editor.setLineClass(lineNum, 'robzColor', 'robzBackground');
+            editor.addLineClass(lineNum, 'wrap', 'robzColor');
+            editor.addLineClass(lineNum, 'background', 'robzBackground');
+            editor.removeLineClass(oldNum, 'background', 'robzBackground');
+            editor.removeLineClass(oldNum, 'wrap', 'robzColor');
+            editor.scrollIntoView({line:lineNum, char:0}, 130);
+            break;
+        }
       }
     }
     
@@ -588,26 +623,54 @@
 
     }
 
+    function runGenerate() {
+      socket.emit('generateGcode',  function(response){
+        //document.getElementById("spnGcode").innerHTML = response;
+        //document.getElementById("spnGcode").value = response;
+        editor.setValue(response);
+      //editor.markText({line: 40, ch: 0}, {line: 40, ch: 100}, {className: "CodeMirror-activeline-background"});
+      editor.setSelection( {line:0, ch:0}, {line:0, ch:100}, {scroll:true, className: "CodeMirror-activeline-background"});
+
+    });
+    }
+
+
+    function mockValues() {
+      document.getElementById('h1X').innerHTML = "64.0";
+      document.getElementById('h1Y').innerHTML = "160.299";
+      document.getElementById('h2X').innerHTML = "145.0";
+      document.getElementById('h2Y').innerHTML = "55.6";
+      document.getElementById('zHeight').innerHTML = "27.0";
+      document.getElementById('dDepth').value = "1.0";
+
+
+    }
+
     function runProcess() {
       debug=true;
       h1X = document.getElementById('h1X').innerHTML;
       h1Y = document.getElementById('h1Y').innerHTML;
       h2X = document.getElementById('h2X').innerHTML;
       h2Y = document.getElementById('h2Y').innerHTML;
+      sZ = document.getElementById('zHeight').innerHTML;
+      dD = document.getElementById('dDepth').value;
+
       
       // testing 
-      h1X = "43.4";
-      h1Y = "165.899";
-      h2X = "179";
-      h2Y = "53.099";
-      socket.emit('calcProcessRotation', h1X, h1Y, h2X, h2Y ,  function(response){
+      //h1X = "43.4";
+      //h1Y = "165.899";
+      //h2X = "179";
+      //h2Y = "53.099";
+
+
+      socket.emit('calcProcessRotation', h1X, h1Y, h2X, h2Y, sZ, dD,  function(response){
         console.log('calcProcessRotation (events.py returned : ' + response);
         var obj = JSON.parse(response);
         document.getElementById("spnCNCRotAngle").innerHTML = obj["RotAngle"];
         document.getElementById("spnCNCDist").innerHTML = obj["CNCDistance"];
         document.getElementById("spnGCodeAngle").innerHTML = obj["GCodeRotation"];
-        document.getElementById('cncplotpng').src = '/plot_cnc_png';
-        document.getElementById('cncplotpng').style.visibility = "visible";
+        //document.getElementById('cncplotpng').src = '/plot_cnc_png';
+        //document.getElementById('cncplotpng').style.visibility = "visible";
         document.getElementById('spnCNCScale').innerHTML = obj['CNCScale'];
 
         
@@ -646,3 +709,8 @@
         {% block content %} {% endblock %}
   </body>
 </html>
+
+<script type="text/javascript" charset="utf-8">
+  var editor = CodeMirror.fromTextArea(document.getElementById("spnGcode"), {lineNumbers: true, styleActiveLine: true, theme: "night" });
+
+</script>

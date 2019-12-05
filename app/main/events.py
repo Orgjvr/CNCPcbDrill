@@ -8,6 +8,7 @@ from . import cameraFunctions
 from . import coreFunctions
 from . import propFunctions
 from . import gCodeGrbl
+from . import processFile
 from .classes import Job
 from .views import views_camera
 from .views import views_file
@@ -170,28 +171,38 @@ def getCurrentCamera():
     return success
 
 
-
+@socketio.on("generateGcode", namespace='/sock')
+def generateGcode():
+    return processFile.generateGcode()
+    #return "This is the returned GCode"
 
 
 @socketio.on('calcProcessRotation', namespace = '/sock')
 #def runProcess(h1X, h1Y, h2X, h2Y, jobContext):
-def runProcess(sh1X, sh1Y, sh2X, sh2Y):
+def runProcess(sh1X, sh1Y, sh2X, sh2Y, ssZ, sdD):
 
     h1X = float(sh1X)
     h1Y = float(sh1Y)
     h2X = float(sh2X)
     h2Y = float(sh2Y)
-
+    sZ = float(ssZ)
+    dD = float(sdD)
 
     
     JobObject = views_file.job
+    JobObject.CNC_SAFE_HEIGHT = sZ
+    JobObject.CNC_DRILL_DEPTH = dD
+
 
     JobObject = views_file.job
     thisLogger.debug("Calculating CNC DATA -------------------------")
     thisLogger.debug("calculating with H1: (%3.3f, %3.3f)"% (h1X, h1Y))
     thisLogger.debug("calculating with H2: (%3.3f, %3.3f)"% (h2X, h2Y))
     
-    CNCRadAngle = JobObject.setCNCholes( h1X, h1Y, h2X , h2Y)
+    JobObject.CNChole1 = h1X, h1Y
+    JobObject.CNChole2 = h2X, h2Y
+
+    CNCRadAngle = JobObject.calculatePCBRotationInRads()
     CNCAngle = math.degrees(CNCRadAngle)
     logging.debug(" sanity check ------------------------------- calculate distance between holes on CNC")
     CNCDistance =  math.sqrt( (h1X-h2X)**2 + (h1Y-h2Y)**2 )

@@ -75,8 +75,8 @@ class Hole:
         CNC_X = CNCOrigin[0] + (self.distanceFromZero * (scale/100) * math.cos(self.angleFromZero + RotationAngle))
         CNC_Y = CNCOrigin[1] + (self.distanceFromZero * (scale/100) * math.sin(self.angleFromZero + RotationAngle))
 
-        print(CNC_X)
-        print(CNC_Y)
+        #print(CNC_X)
+        #print(CNC_Y)
 
         self.CNCDrillPosition = CNC_X, CNC_Y
 

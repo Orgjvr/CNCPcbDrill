@@ -5,8 +5,8 @@
     <table border='1'>
         <tr>
             <td style='vertical-align:top;' rowspan=2>
-            <div id='toolTable'></div>
-                 <table border="1" style=" border-collapse:collapse;">
+            <div id='toolTable'>
+                 <table border="1" style=" border-collapse:collapse; margin:5px;">
                     <tr>
                         <th colspan="4" align="center" style="font:small-caption;"><b>Tools</b></th>
                     </tr>
@@ -26,17 +26,33 @@
                     </tr>
                     {% endfor %}
                 </table>
+                <table border="1" style=" border-collapse:collapse; margin:5px;">
+                    <tr>
+                        <th colspan="4" align="center" style="font:small-caption;"><b>PCB Data</b></th>
+                    </tr>
+                    <tr>
+                        <th style="font:status-bar;">detail</th>
+                        <th style="font:status-bar;">data</th>
+                      
+                    </tr>
+                    <tr>
+                        <td style="font:status-bar;text-align: center; "># Holes</td>
+                        <td><span id="PCBNumHoles" style="font: normal;">{{ '%s'% ( job.numHoles) }}</span></td>
+                    </tr>
+                    
+                </table>
+            </div>
             </td>
-            <td rowspan=2>
-                <table border="0" style="padding:0;">
+            <td rowspan=2 style="width: 400;">
+                <table border="1" style="padding:0; margin: 0; width:100%">
                     <tr>
                         <td style="text-align: center; ">
-                            <label style="font:caption; font-size:x-large;">PCB Hole Display</label>
+                            <label style="font:caption; font-size:large;">PCB Hole Display</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <img src="{{ url_for('main.plot_png') }}" width="432" height="288">
+                            <img src="{{ url_for('main.plot_png') }}" width="100%" height="288" style="border: darkred;">
                         </td>
                     </tr>
                     <tr>
@@ -63,9 +79,6 @@
                         </td>
                     </tr>
                 </table>
-                
-                <!-- <div id='holePlot'></div> -->
-                
             </td>
             <!-- -->
             <td style="vertical-align: top; height: 244px; width: 324px;" >
@@ -79,17 +92,21 @@
         <tr>
             <td>
                 <div id="setZdiv">
-                    <button id="btnSetZ" onclick="setZHeight()" >Grab Z Height</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">Z:</label>&nbsp;&nbsp;<label id="zHeight" style="font:caption;font-size: larger;">000.000 </label>
+                    <button id="btnSetZ" onclick="setZHeight()" >Grab Z Height</button> &nbsp;&nbsp;<label style="font:caption;font-size: large;">Z:</label>&nbsp;&nbsp;<label id="zHeight" style="font:caption;font-size: large;">000.000 </label>&nbsp;&nbsp;
+                    <label style="font:caption;font-size: small;">Drill Depth:</label>&nbsp;&nbsp;<input type="text" id="dDepth" style="font:caption;font-size:small; width: 30px;" text = '00.0'/>
                 </div>
  
                 <div id="capBtns2">
-                    <button id="btnCap1" onclick="geth1Coords()" >Grab Hole 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h1X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h1Y" style="font:caption;font-size: larger;" >000.000</label>
+                    <button id="btnCap1" onclick="geth1Coords()" >Grab Hole 1</button> &nbsp;&nbsp;<label style="font:caption;font-size: large;">X:</label>&nbsp;&nbsp;<label id="h1X" style="font:caption;font-size: large;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h1Y" style="font:caption;font-size: larger;" >000.000</label>
                 </div>
                 <div id="capBtns2">
-                    <button id="btnCap1" onclick="geth2Coords()" >Grab Hole 2</button> &nbsp;&nbsp;<label style="font:caption;font-size: larger;">X:</label>&nbsp;&nbsp;<label id="h2X" style="font:caption;font-size: larger;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h2Y" style="font:caption;font-size: larger;" >000.000</label>
+                    <button id="btnCap1" onclick="geth2Coords()" >Grab Hole 2</button> &nbsp;&nbsp;<label style="font:caption;font-size: large;">X:</label>&nbsp;&nbsp;<label id="h2X" style="font:caption;font-size: large;">000.000 </label>&nbsp;&nbsp;<label style="font:caption;font-size: larger;">Y:</label>&nbsp;&nbsp;<label id="h2Y" style="font:caption;font-size: larger;" >000.000</label>
                 </div>
                 <div id="btnProcess">
                     <button id="btnProcess" onclick="runProcess()" >Analyze</button>
+                    <button id="btnGenerate" onclick="runGenerate()" >Generate</button>
+                    <button id="btnMock" onclick="mockValues()" >Mock</button>
+                    
                     <!-- <input type="hidden" id="jobContext" name="jobContext" value="{'{ job doesnt exist !!!! }''}"> -->
 
                 </div>
@@ -112,44 +129,48 @@
     <table border=1 style="border-collapse: collapse;">
         <tr>
             <td style="vertical-align: text-top;"> 
-            <table border=1 style="border-collapse:collapse">
-                <tr><th colspan=2 style="font:caption;font-size: larger;">COORDINATES</th></tr>
-                <tr>
-                <th><span style="font:caption;font-size: larger;">X:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="xpos">000.000</span></td></td>
-                </tr>
-                <tr>
-                <th><span style="font:caption;font-size: larger;">Y:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="ypos">000.000</span></td></td>
-                </tr>
-                <tr>
-                <th><span style="font:caption;font-size: larger;">Z:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="zpos">000.000</span></td></td>
-                </tr>
-                <tr>
-                    <td colspan=2 style="text-align: center;">
-                        <button id="btnCanJog" onclick="toggleCanJog()" style="background-color: lightgray;" disabled>Serial Needed</button>
-     
-                    </td>
-                </tr>
-                <tr>
-                <th><span style="font:caption;font-size:medium;">F2</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="moveState">Coarse / Fine</span></td></td>
-                </tr>
-                <tr>
-                    <th><span style="font:caption;font-size:medium;">Arrow</span></th>
-                    <td style="text-align: right;"><span style="font:caption;font-size:medium;text-align: right;" id="spnArrowNormal"></span><span style="font:caption;font-size:medium;display: none; text-align: right;" id="spnArrowFine"></span></td>
-                </tr>
-                <tr>
-                    <th><span style="font:caption;font-size:medium;">Shift</span></th>
-                    <td style="text-align: right;"><span style="font:caption;font-size:medium;text-align: right;" id="spnShiftNormal"></span><span style="font:caption;font-size:medium; display: none; text-align: right;" id="spnShiftFine"></span></td>
-                </tr>
-                <tr>
-                    <td colspan=2>
-                        <span style="font:caption;font-size: large;"></span>
-                        <input type="checkbox" id="chkCanJog" style="visibility: hidden;">
-                    </td>
-                </tr>
+                
+                <table border=1 style="border-collapse:collapse">
+                    <tr>
+                        <th colspan=2 style="font:caption;font-size: larger;">COORDINATES</th>
+                    </tr>
+                    <tr>
+                        <th><span style="font:caption;font-size: larger;">X:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="xpos">000.000</span></td></td>
+                    </tr>
+                    <tr>
+                        <th><span style="font:caption;font-size: larger;">Y:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="ypos">000.000</span></td></td>
+                    </tr>
+                    <tr>
+                        <th><span style="font:caption;font-size: larger;">Z:</span></th><td style="text-align: center"><span style="font:caption;font-size:x-large;" id="zpos">000.000</span></td></td>
+                    </tr>
+                    <tr>
+                        <td colspan=2 style="text-align: center;">
+                            <button id="btnCanJog" onclick="toggleCanJog()" style="background-color: lightgray;" disabled>Serial Needed</button>
+        
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span style="font:caption;font-size:medium;">F2</span></th><td style="text-align: center"><span style="font:caption;font-size:medium;" id="moveState">Coarse / Fine</span></td></td>
+                    </tr>
+                    <tr>
+                        <th><span style="font:caption;font-size:medium;">Arrow</span></th>
+                        <td style="text-align: right;"><span style="font:caption;font-size:medium;text-align: right;" id="spnArrowNormal"></span><span style="font:caption;font-size:medium;display: none; text-align: right;" id="spnArrowFine"></span></td>
+                    </tr>
+                    <tr>
+                        <th><span style="font:caption;font-size:medium;">Shift</span></th>
+                        <td style="text-align: right;"><span style="font:caption;font-size:medium;text-align: right;" id="spnShiftNormal"></span><span style="font:caption;font-size:medium; display: none; text-align: right;" id="spnShiftFine"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan=2>
+                            <span style="font:caption;font-size: large;"></span>
+                            <input type="checkbox" id="chkCanJog" style="visibility: hidden;">
+                        </td>
+                    </tr>
                 </table>
-               </td>
+            </td>
             <td>
-                <table border="0">
+                
+                <table border="1">
                     <tr>
                         <td style="font:small-caption; font-style: italic; text-align: center; " >(click on line to re-run)</td>
                     </tr>
@@ -164,7 +185,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <select multiple id="sm1" style="height: 100%;width: 200px;" size="15" onchange="logSelect(this.selectedIndex)" >
+                            <select multiple id="sm1" style="width: 200px;" size="15" onchange="logSelect(this.selectedIndex)" >
                                 <option>G0 X100 Y100</option>
                                 <option>G1 X10 Y10 F1000</option>
                                 <option>G28</option>
@@ -190,10 +211,11 @@
 
                     </tr>
                 </table>
+            
             </td>
-            <td style="vertical-align: top; width: 500px; padding: 10px;">
+            <td style="vertical-align: top; width: 500px; padding: 10px; border: 1 solid red">
                 <div id="divSerialMonitor" style="visibility:collapse;">
-                    <table border="0">
+                    <table border="1">
                         <tr>
                             <td style="font:small-caption; text-align: center; " >Serial Monitor</td>
                         </tr>
@@ -205,12 +227,22 @@
                         </tr>
                     </table>
                 </div>
+                <div id="cncGenerate" style="vertical-align: top;">
+                    <!-- Create a simple CodeMirror instance -->
+                    <label id='lineNumber' >1</label>
+                    <textarea style="border:2px solid red" id="spnGcode" cols=50 rows=30 ></textarea>
+
+                </div>
+                <!-- - ->
                 <div id="cncRender" style="vertical-align: top;">
                         <span id="cncSpan" ></span>
                         <img id="cncplotpng" width="600" height="600" style="visibility: collapse; ">
                 </div>
+            -->
             </td>
+           
         </tr>
         </table>
+    
     </div>
 {% endblock %}

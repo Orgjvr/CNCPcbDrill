@@ -22,6 +22,7 @@ class Job:
         self.isTZ = False
         self.isLZ = False
         self.fileType = ""
+        self.numHoles = 0
         # CNC ----------------------------
         self.CNChole1 = [-999.999,-999,999]
         self.CNChole2 = [-999.999,-999,999]
@@ -29,6 +30,8 @@ class Job:
         self.CNCScale = 1.0
         self.CNCDistance = 0.0
         self.CNC_PCB_ORIGIN = [-999.999,-999,999]
+        self.CNC_SAFE_HEIGHT = 0.0
+        self.CNC_DRILL_DEPTH = 0.0
         # PCB ----------------------------
         self.PCBRadAngle = 0.0
         self.PCBDistance = 0.0
@@ -71,9 +74,10 @@ class Job:
 
         logging.info("# holes : %d, tools : %d, Hole1 : %d, Hole2 : %d"% (self.holes.__len__(), self.tools.__len__(), self.h1.holeNumber, self.h2.holeNumber))
 
-    def setCNCholes(self, h1X, h1Y, h2X, h2Y):
-        self.CNChole1 = h1X , h1Y 
-        self.CNChole2 = h2X , h2Y
+    def calculatePCBRotationInRads (self):
+
+        h1X , h1Y = self.CNChole1
+        h2X , h2Y = self.CNChole2
 
         # calculate distances & scale 
         self.CNCDistance = math.sqrt( (h1X-h2X)**2 + (h1Y-h2Y)**2)
