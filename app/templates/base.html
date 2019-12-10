@@ -3,12 +3,16 @@
 <title>Upload new File</title>
 <!-- - ->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<!- -   -->
+<!- -   - ->
+
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<!-- - ->
+<!- - - ->
+
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <!- -  -->
+<script src="{{ url_for('static', filename='js/jquery-3.3.1.slim.min.js') }}"  ></script>
+<script src="{{ url_for('static', filename='js/popper.min.js') }}" ></script>
 
 <!-- - ->
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
@@ -27,6 +31,11 @@
     
     // DEBUG true / false
     var debug = false;
+    var pause = false;
+    var streamState = "IDLE";
+
+    var currentLine = 0;
+    var numLines = 0;
 
 
     $(document).ready(function(){
@@ -64,26 +73,45 @@
             getCncMoves();
             setInterval(mustPollPosition, 500);
             registerKeyDown();
-            
-
         });
-        socket.on('grblResponse', function(data) {
-          if(debug) console.log("grblResponse said : " + data);
+
+
+
+        // not sure why this is not working?
+
+        socket.on('liner', function(data) {
+          console.log("liner said : " + data);
+          //console.log("Setting Mode To STREAM & Incrementing currentLine");
+          //GrblState = "STREAM";
+          //streamState = "STREAM";
+          result = JSON.parse(data).res;
+          n = JSON.parse(data).n;
+          for(l = 0; l < n; l++){
+            editor.addLineClass(l, 'background', 'robzSuccessBackground');
+            editor.removeLineClass(l, 'wrap', 'robzColor');
+          }
+          currentLine++;
         });
 
         socket.on('position', function(data) {
-          if(debug) console.log("position returnedc ....");
+          if(debug) console.log("position returned ....");
           if(debug) console.log(data);
           if(debug) console.log('base.html : socket.position : data =' + JSON.parse(data));
-          //console.log('base.html : socket.position : grblState =' + JSON.parse(data).grblState);
+          console.log('base.html : socket.position : grblState =' + JSON.parse(data).grblState);
           switch(JSON.parse(data).grblState){
+            case "Stream":
+            case "STREAM":
+              GrblState = "STREAM";
             case "Idle":
+            case "IDLE":
               GrblState = "IDLE";
               break;
             case "Run":
+            case "RUN":
               GrblState = "RUN";
               break;
             case "Jog":
+            case "JOG":
               GrblState = "JOG";
               break;
             case "TIMEOUT":
@@ -170,38 +198,7 @@
           }
           return false;
       }
-      else{
-        
-        var lineNum = parseInt(document.getElementById('lineNumber').innerHTML.trim());
-        switch(e.code){
-          case "ArrowRight":
-            var oldNum = lineNum;
-            lineNum = lineNum + 1;
-            document.getElementById('lineNumber').innerHTML = lineNum;
-            editor.setSelection( {line:lineNum, ch:0}, {line:lineNum, ch:100}, {scroll:true});
-            //editor.setLineClass(lineNum, 'robzColor', 'robzBackground');
-            editor.addLineClass(lineNum, 'wrap', 'robzColor');
-            editor.addLineClass(lineNum, 'background', 'robzBackground');
-            editor.removeLineClass(oldNum, 'background', 'robzBackground');
-            editor.removeLineClass(oldNum, 'wrap', 'robzColor');
-            editor.scrollIntoView({line:lineNum, char:0}, 130);
-            break;
-
-        
-        case "ArrowLeft":
-            var oldNum = lineNum;
-            lineNum = lineNum - 1;
-            document.getElementById('lineNumber').innerHTML = lineNum;
-            editor.setSelection( {line:lineNum, ch:0}, {line:lineNum, ch:100}, {scroll:true});
-            //editor.setLineClass(lineNum, 'robzColor', 'robzBackground');
-            editor.addLineClass(lineNum, 'wrap', 'robzColor');
-            editor.addLineClass(lineNum, 'background', 'robzBackground');
-            editor.removeLineClass(oldNum, 'background', 'robzBackground');
-            editor.removeLineClass(oldNum, 'wrap', 'robzColor');
-            editor.scrollIntoView({line:lineNum, char:0}, 130);
-            break;
-        }
-      }
+      
     }
     
 
@@ -256,11 +253,11 @@
                     socket.emit('get3dPos', {}, function(data) {
                       if(debug) console.log('in Connect Serial : emmitted get3dPos returned!');
                       if(debug) console.log('data = ' + data);
-                    });
+                  });
                 }
             });
-          }
         }
+    }
 
     function toggleCanJog(setter){
       if(debug) console.log("in toggle");
@@ -426,22 +423,68 @@
       dropdown.append($('<option></option>').attr('value', 9600).text(9600));
     }
 
+
+    var oldGrblState = "";
+    var oldStreamState = "";
+    
     function mustPollPosition() {
+      debug = true;
       if(debug) console.log('check mustPollPosition');
+      
       var checkBox = document.getElementById("chkCanJog");
-      if(debug) console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
-      if ((checkBox.checked == true && GrblState == "JOG") || GrblState == "RUN" ){
+      if(oldGrblState != GrblState || oldStreamState != streamState){
+
+        console.log("streamState = " + streamState + " Grblstate = " + GrblState + " CurrentLine " + currentLine);
+        oldGrblState = GrblState;
+        oldStreamState = streamState;
+      }
+
+      if ((checkBox.checked == true && GrblState == "JOG") || GrblState == "RUN" ){        
         if(debug) console.log("mustPollPosition  = " + checkBox.checked + " Grblstate = " + GrblState)
-        if(debug) console.log("moving getting pos")
+        console.log("moving getting pos")
           socket.emit('get3dPos', {}, function(data) {
             if(debug) console.log('mustPollPosition : emmitted get3dPos returned!');
             if(debug) console.log('data = ' + data);
           });
       }
-      else {
-        GrblState = "Idle";
-      }
+      else if(GrblState == "IDLE" && streamState == "STREAM"){
+        if(numLines == 0){
+          numLines = editor.lineCount();
+        }
+        // reset background of previous line  -- should be in liner 
+      
 
+        // get next line
+        if(debug) console.log("mustPollPosition - Stream #currentLine = " + currentLine + " total " + numLines)
+        var lne = editor.getLine(currentLine).trim();
+
+        while (lne == "" && currentLine <= numLines){
+          editor.removeLineClass(currentLine, 'background', 'robzBackground');
+          editor.removeLineClass(currentLine, 'wrap', 'robzColor');
+          currentLine++;
+          lne = editor.getLine(currentLine).trim();
+        }
+        if(lne != ""){
+          GrblState = "RUN";
+          if(debug) console.log("Running Next Line" + lne + " Line Number " + currentLine) ;
+          editor.scrollIntoView({line:currentLine, char:0}, 130);
+          socket.emit('runLine', '{"l": "' + lne + '", "n":' + currentLine + '}' , function(response){
+
+            // a response here can be checked for the backend accepting the command.
+
+            editor.addLineClass(currentLine-1, 'wrap', 'robzColor');
+            editor.addLineClass(currentLine-1, 'background', 'robzBackground');
+
+            if(debug)console.log("inside runLine response : " + response);
+            return false;
+
+          });
+        }
+      }
+      else {
+        GrblState = "IDLE";
+      }
+      debug=false;
     }
   
     function getCameras() {
@@ -629,9 +672,9 @@
         //document.getElementById("spnGcode").value = response;
         editor.setValue(response);
       //editor.markText({line: 40, ch: 0}, {line: 40, ch: 100}, {className: "CodeMirror-activeline-background"});
-      editor.setSelection( {line:0, ch:0}, {line:0, ch:100}, {scroll:true, className: "CodeMirror-activeline-background"});
+      //editor.setSelection( {line:0, ch:0}, {line:0, ch:100}, {scroll:true, className: "CodeMirror-activeline-background"});
 
-    });
+      });
     }
 
 
@@ -683,6 +726,35 @@
     function ab2str(buf) {
       return String.fromCharCode.apply(null, new Uint16Array(buf));
     }
+
+
+
+    // this will create a json string of the lines in the editor, and send through to the serial line streamer
+    // the lineStreamer will emit back twice one when it sends the line, and a second when the line finishes 
+    //  allowing the front end to display progress 
+
+
+
+    function startStream() {
+      GrblState = "STREAM";
+      streamState = "STREAM";
+
+    }
+
+    function getEditorLineNextLine(){
+      var lne = editor.getLine(currentLine).trim();
+      while (lne == "" && currentLine <= numLines){
+        currentLine++;
+      }
+      if(lne != ""){
+        GrblState = "RUN";
+        socket.emit('runLine', '{"l": "' + lne + '", "n":' + currentLine + '}' , function(response){
+          currentLine++;
+          GrblState = "STREAM";
+        });
+      }
+    }
+
 </script>
 
 

@@ -15,7 +15,7 @@ from .views import views_file
 import json
 import math
 import logging
-import json
+
 
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -40,7 +40,7 @@ thisLogger.info("I am a log from events.py")
 def get3dPos(message):
     """Get the machine position and send it back to the browser"""
     pos = serialFunctions.get3dPos()
-    print("Emitting position")
+    print("Emitting position from get3dPos in events.py")
     emit('position', pos)
     return pos
 
@@ -175,6 +175,29 @@ def getCurrentCamera():
 def generateGcode():
     return processFile.generateGcode()
     #return "This is the returned GCode"
+
+@socketio.on('runLine', namespace='/sock')
+def runLine(jsontext):
+    cmd = json.loads(jsontext)
+    print("received " + jsontext)
+    print(cmd["l"])
+    serialResponse = serialFunctions.WriteToSerial(cmd["l"])
+
+    retVal = '{"res":"%s", "n":%d}'% (serialResponse, cmd["n"]) 
+
+    emit('liner', retVal)
+    return retVal
+   
+'''
+    receive a json string of the gcode to be sent 
+
+@socketio.on("streamGcode", namespace='/sock')
+def streamGcode(jsonLines):
+    print( "in events.streamGcode")
+    serialFunctions.streamLines(jsonLines)
+    return
+'''
+
 
 
 @socketio.on('calcProcessRotation', namespace = '/sock')

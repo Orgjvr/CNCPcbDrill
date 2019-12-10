@@ -1,3 +1,8 @@
+from flask_socketio import emit, join_room, leave_room
+
+#import jsonpickle
+from .. import socketio
+
 #from . import serial_rx_tx
 import json
 import time
@@ -139,7 +144,7 @@ def WriteToSerial(message, timeout=10): #This will return the value which was re
             if grbl_out.decode('utf-8').strip() == 'ok':
                 logging.debug("serialFunctions.WriteToSerial : got ok back ")
                 gotok = True
-                grbl_out_str = str("returned OK\r\n")
+                grbl_out_str = "ok"
                 #logging.debug(grbl_out_str)
             else:
                 logging.debug("serialFunctions.WriteToSerial : got somthing else back - not ok")
@@ -269,7 +274,53 @@ def emergencyStop():
         return False
 
 
+def streamLine(lineNum, line):
+    time.sleep(2)   # Wait for grbl to initialize 
+    global serialPort
+    serialPort.flushInput()  # Flush startup text in serial input
 
+    l = line.strip() # Strip all EOL characters for consistency
+    print ('Sending: ' + l)
+    WriteToSerial(l + '\n') # Send g-code block to grbl
+    grbl_out = serialPort.readline() # Wait for grbl response with carriage return
+    return "%d||%s"% (lineNum, grbl_out.decode("utf-8").strip())
+    
+'''
+def streamLines(jsonLines):
+    
+    print( "in streamLines")
+
+    import serial
+    import time
+    import json
+
+    # Wake up grbl
+    WriteToSerial("\r\n\r\n")
+    time.sleep(2)   # Wait for grbl to initialize 
+    global serialPort
+    serialPort.flushInput()  # Flush startup text in serial input
+    
+    tmp = json.loads(jsonLines)
+    numLines = tmp["num"]
+    lines = tmp["lines"]
+
+    print(numLines)
+
+    for line in lines:
+        print("sending Line Num : %d is >>%s<<"% (line["n"], line["l"]))
+        l = line["l"].strip() # Strip all EOL characters for consistency
+        result = WriteToSerial(l + '\n') # Send g-code block to grbl
+        #serialPort.Flush()
+        #emit('lineResponse', "sent", line["n"]  )
+        # grbl_out = serialPort.readline() # Wait for grbl response with carriage return
+        print (result)
+        # cannot emit from 
+        emit('liner', line["l"] )
+
+    # Wait here until grbl is finished to close serial port and file.
+    print(" Completed Streaming -------------------------------------------" )
+
+'''
 
 global serialPort
 global sPorts
