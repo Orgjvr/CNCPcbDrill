@@ -114,6 +114,14 @@ class Job:
 
         return self.CNCRadAngle
 
+    def getTool(self, num):
+        #print("Looking foor tool <%d>"% (num))
+        for t in self.tools:
+            #print("Comparing tool <%s>"% (t.toolNum))
+            if (t.toolNum == str(num)):
+                #print("Found tool <%d>"% (num))
+                return t
+        #print( "Error finding tool")
     
 
 

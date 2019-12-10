@@ -14,7 +14,11 @@ class Tool:
     
     @classmethod
     def find_by_number(self, num):
-        return Tool.tool_index.get(num)
+        #return Tool.tool_index.get(num)
+        for t in Tool.tool_index:
+            if (t.toolNum == num):
+                return t
+
 
     #@classmethod
     #def addHole(self, toolNum):

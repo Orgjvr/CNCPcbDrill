@@ -121,7 +121,7 @@ def ReadFile(job):
             #read Tools
             if x[0] == "T":
                 currentTool = int(x[1:5].strip())
-                toolSize = job.tools[currentTool-1].size
+                toolSize = job.getTool(currentTool).size
                 logging.info("ToolSize=<"+str(toolSize)+">")
 
             
@@ -159,7 +159,7 @@ def ReadFile(job):
                 holeNum = holeNum + 1
                 logging.info("Found a Hole - Holenumber=%s with X=%s and Y=%s and line=%s", holeNum, xval, yval, x)
                 job.holes.append(Hole.Hole(holeNum, filePoint, currentTool, toolSize, job.isMetric))
-                job.tools[currentTool-1].holeCount += 1
+                job.getTool(currentTool).holeCount += 1
 
             
                 # Warn if Toolnumber=0 
