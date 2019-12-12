@@ -8,6 +8,7 @@ from . import propFunctions
 import json
 import traceback
 from flask import current_app as app
+from .views import views_file
 
 def Wakeup():
     # Wake up grbl
@@ -15,6 +16,9 @@ def Wakeup():
     time.sleep(2)   # Wait for grbl to initialize 
     serialFunctions.flushInput()
     
+'''
+gets status from GRBL and returns to get3dPos in a json format  
+''' 
 
 def getStatus():
     print("getting status, sending via serialFunctions.WriteToSerial('?') ")
@@ -35,7 +39,12 @@ def getStatus():
             result += thisSeg
         return result[:-1]+"}"
     
+'''
+Added a check for the streaming state - if streaming, return an additional status which is the list of completed lines & the current line 
 
+{"streamStatus":{ "completed":[1,2,3,4,5,6,7], "currentLine":8}}
+
+'''
 def get3dPos():
     print("gCodeGrbl.get3dPos : running getStatus()")
     status = getStatus()

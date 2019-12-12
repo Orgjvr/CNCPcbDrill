@@ -214,12 +214,8 @@ def generateGcode():
         # for now only get 3mm holes 
         if h.size == 3.0:
             # add hole to html
-            outString += "G0 X%3.3f Y%3.3f Z%3.3f F3000 \n"% (h.CNCDrillPosition[0], h.CNCDrillPosition[1], jobObject.CNC_SAFE_HEIGHT)
-            outString += "G0 Z%3.3f F500 \n"% (jobObject.CNC_SAFE_HEIGHT - jobObject.CNC_DRILL_DEPTH)
-            outString += "G0 Z%3.3f F3000 \n"% (jobObject.CNC_SAFE_HEIGHT)
-            outString += "\n"
-            outString += "G0 X%3.3f Y%3.3f Z%3.3f F3000 \n"% (h.CNCDrillPosition[0], h.CNCDrillPosition[1], jobObject.CNC_SAFE_HEIGHT)
-            outString += "G0 Z%3.3f F500 \n"% (jobObject.CNC_SAFE_HEIGHT - jobObject.CNC_DRILL_DEPTH)
-            outString += "G0 Z%3.3f F3000 \n"% (jobObject.CNC_SAFE_HEIGHT)
+            outString += "G0 X%3.3f Y%3.3f Z%3.3f  \n"% (h.CNCDrillPosition[0], h.CNCDrillPosition[1], jobObject.CNC_SAFE_HEIGHT)
+            outString += "G0 Z%3.3f F500 \n"% (jobObject.CNC_SAFE_HEIGHT + jobObject.CNC_DRILL_DEPTH)
+            outString += "G0 Z%3.3f \n"% (jobObject.CNC_SAFE_HEIGHT)
             outString += "\n"
     return outString
